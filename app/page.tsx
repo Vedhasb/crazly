@@ -10,12 +10,6 @@ export default function Page() {
           <a href="#" className="text-sm text-white/60 hover:text-white transition-colors">Product</a>
           <a href="#" className="text-sm text-white/60 hover:text-white transition-colors">Pricing</a>
           <a href="#" className="text-sm text-white/60 hover:text-white transition-colors">Blog</a>
-          <a
-            href="#"
-            className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-8 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-indigo-600/30"
-          >
-            Start for free →
-          </a>
           <Link
             href="/workflows"
             className="text-sm bg-white text-black font-semibold px-4 py-2 rounded-lg hover:bg-white/90 transition-colors"
