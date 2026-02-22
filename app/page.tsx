@@ -10,10 +10,11 @@ export default function Page() {
           <a href="#" className="text-sm text-white/60 hover:text-white transition-colors">Product</a>
           <a href="#" className="text-sm text-white/60 hover:text-white transition-colors">Pricing</a>
           <a href="#" className="text-sm text-white/60 hover:text-white transition-colors">Blog</a>
-          <Link href="/workflows">
-            <a href="/workflows" className="text-sm bg-white text-black font-semibold px-4 py-2 rounded-lg hover:bg-white/90 transition-colors">
-              Start for Free
-            </a>
+          <Link
+            href="/workflows"
+            className="text-sm bg-white text-black font-semibold px-4 py-2 rounded-lg hover:bg-white/90 transition-colors"
+          >
+            Get Started
           </Link>
         </div>
       </nav>
@@ -39,10 +40,11 @@ export default function Page() {
           >
             Start for free →
           </a>
-          <Link href="/workflows">
-          <a className="text-sm bg-white text-black font-semibold px-4 py-2 rounded-lg hover:bg-white/90 transition-colors">
+          <Link
+            href="/workflows"
+            className="text-sm bg-white text-black font-semibold px-4 py-2 rounded-lg hover:bg-white/90 transition-colors"
+          >
             Get Started
-            </a>
           </Link>
         </div>
 
