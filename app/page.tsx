@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 export default function Page() {
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-white font-sans">
@@ -8,12 +10,11 @@ export default function Page() {
           <a href="#" className="text-sm text-white/60 hover:text-white transition-colors">Product</a>
           <a href="#" className="text-sm text-white/60 hover:text-white transition-colors">Pricing</a>
           <a href="#" className="text-sm text-white/60 hover:text-white transition-colors">Blog</a>
-          <a
-            href="#"
-            className="text-sm bg-white text-black font-semibold px-4 py-2 rounded-lg hover:bg-white/90 transition-colors"
-          >
-            Get Started
-          </a>
+          <Link href="/workflows">
+            <a href="/workflows" className="text-sm bg-white text-black font-semibold px-4 py-2 rounded-lg hover:bg-white/90 transition-colors">
+              Start for Free
+            </a>
+          </Link>
         </div>
       </nav>
 
@@ -38,12 +39,11 @@ export default function Page() {
           >
             Start for free →
           </a>
-          <a
-            href="#"
-            className="text-white/60 hover:text-white text-base font-medium transition-colors"
-          >
-            See how it works
-          </a>
+          <Link href="/workflows">
+          <a className="text-sm bg-white text-black font-semibold px-4 py-2 rounded-lg hover:bg-white/90 transition-colors">
+            Get Started
+            </a>
+          </Link>
         </div>
 
         {/* Social proof */}
