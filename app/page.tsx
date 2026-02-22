@@ -16,6 +16,12 @@ export default function Page() {
           >
             Start for free →
           </a>
+          <Link
+            href="/workflows"
+            className="text-sm bg-white text-black font-semibold px-4 py-2 rounded-lg hover:bg-white/90 transition-colors"
+          >
+            Get Started
+          </Link>
         </div>
       </nav>
 
