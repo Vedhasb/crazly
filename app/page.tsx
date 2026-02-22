@@ -35,7 +35,7 @@ export default function Page() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
           <a
-            href="#"
+            href="/workflows"
             className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-8 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-indigo-600/30"
           >
             Start for free →
