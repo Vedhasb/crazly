@@ -1,323 +1,605 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
-const words = ["Developers", "Founders", "Marketers", "Creators", "Students"];
+/* ─── INTERSECTION OBSERVER HOOK ─────────────────────────────── */
+function useInView(threshold = 0.15) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setInView(true); obs.disconnect(); } },
+      { threshold }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, inView };
+}
 
+/* ─── ANIMATED COUNTER ────────────────────────────────────────── */
+function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
+  const [val, setVal] = useState(0);
+  const { ref, inView } = useInView(0.3);
+  useEffect(() => {
+    if (!inView) return;
+    let start = 0;
+    const step = Math.ceil(to / 60);
+    const iv = setInterval(() => {
+      start += step;
+      if (start >= to) { setVal(to); clearInterval(iv); }
+      else setVal(start);
+    }, 16);
+    return () => clearInterval(iv);
+  }, [inView, to]);
+  return <span ref={ref}>{val.toLocaleString()}{suffix}</span>;
+}
+
+/* ─── FLOATING PARTICLE ───────────────────────────────────────── */
+function Particles() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {Array.from({ length: 24 }).map((_, i) => (
+        <div key={i} className="absolute rounded-full"
+          style={{
+            width: `${Math.random() * 3 + 1}px`,
+            height: `${Math.random() * 3 + 1}px`,
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            background: i % 3 === 0 ? "#6366f1" : i % 3 === 1 ? "#818cf8" : "#a5b4fc",
+            opacity: Math.random() * 0.4 + 0.1,
+            animation: `float ${Math.random() * 8 + 6}s ease-in-out infinite`,
+            animationDelay: `${Math.random() * 6}s`,
+          }} />
+      ))}
+    </div>
+  );
+}
+
+/* ─── STEP CARD ───────────────────────────────────────────────── */
+function StepCard({ num, title, body, delay }: { num: string; title: string; body: string; delay: number }) {
+  const { ref, inView } = useInView();
+  return (
+    <div ref={ref} className="relative flex flex-col gap-5 p-7 rounded-2xl group transition-all duration-500"
+      style={{
+        background: "rgba(255,255,255,0.02)",
+        border: "1px solid rgba(255,255,255,0.07)",
+        opacity: inView ? 1 : 0,
+        transform: inView ? "none" : "translateY(32px)",
+        transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms, border-color 0.3s`,
+      }}
+      onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(99,102,241,0.4)")}
+      onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)")}>
+      {/* Step number */}
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0"
+          style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 4px 16px rgba(99,102,241,0.3)" }}>
+          {num}
+        </div>
+        <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(99,102,241,0.4), transparent)" }} />
+      </div>
+      <div>
+        <h3 className="text-base font-bold text-white mb-2 leading-snug">{title}</h3>
+        <p className="text-sm text-white/45 leading-relaxed">{body}</p>
+      </div>
+      {/* hover glow */}
+      <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        style={{ background: "radial-gradient(circle at 50% 0%, rgba(99,102,241,0.06), transparent 70%)" }} />
+    </div>
+  );
+}
+
+/* ─── PAIN ITEM ───────────────────────────────────────────────── */
+function PainItem({ text, delay }: { text: string; delay: number }) {
+  const { ref, inView } = useInView();
+  return (
+    <div ref={ref} className="flex items-start gap-4 py-5 border-b group cursor-default"
+      style={{
+        borderColor: "rgba(255,255,255,0.05)",
+        opacity: inView ? 1 : 0,
+        transform: inView ? "none" : "translateX(-24px)",
+        transition: `opacity 0.6s ease ${delay}ms, transform 0.6s ease ${delay}ms`,
+      }}>
+      <div className="w-5 h-5 rounded-full shrink-0 mt-0.5 flex items-center justify-center"
+        style={{ background: "rgba(251,113,133,0.12)", border: "1px solid rgba(251,113,133,0.25)" }}>
+        <div className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+      </div>
+      <p className="text-sm sm:text-base text-white/55 leading-relaxed group-hover:text-white/80 transition-colors duration-300">{text}</p>
+    </div>
+  );
+}
+
+/* ─── MAIN PAGE ───────────────────────────────────────────────── */
 export default function Home() {
   const [mounted, setMounted] = useState(false);
-  const [wordIndex, setWordIndex] = useState(0);
-  const [fading, setFading] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const howItWorksRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setMounted(true);
-    const interval = setInterval(() => {
-      setFading(true);
-      setTimeout(() => {
-        setWordIndex((prev) => (prev + 1) % words.length);
-        setFading(false);
-      }, 400);
-    }, 2200);
-    return () => clearInterval(interval);
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const scrollToHowItWorks = () => {
+    howItWorksRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const heroInView = useInView(0.01);
+  const painInView = useInView();
+  const proofInView = useInView();
+
   return (
-    <main
-      className="relative min-h-screen bg-[#080808] text-white overflow-hidden flex flex-col"
-      style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
-    >
-      {/* ── Ambient background ── */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute top-[-15%] left-[-10%] w-[400px] h-[400px] sm:w-[700px] sm:h-[700px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 65%)" }}
-        />
-        <div
-          className="absolute bottom-[-20%] right-[-10%] w-[300px] h-[300px] sm:w-[600px] sm:h-[600px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(129,140,248,0.05) 0%, transparent 65%)" }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.018) 1px, transparent 0)",
-            backgroundSize: "36px 36px",
-          }}
-        />
-        <div
-          className="absolute top-0 left-0 right-0 h-px"
-          style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.4), transparent)" }}
-        />
-      </div>
+    <main className="bg-[#060608] text-white overflow-x-hidden"
+      style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}>
 
-      {/* ── Nav ── */}
-      {/* CHANGE: Added mobile hamburger menu, collapsed nav links on small screens */}
-      <nav
-        className="relative z-20 flex items-center justify-between px-5 sm:px-10 py-4 sm:py-5"
-        style={{ opacity: mounted ? 1 : 0, transition: "opacity 0.5s ease" }}
-      >
-        <div className="flex items-center gap-2.5">
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold"
-            style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}
-          >
-            C
-          </div>
-          <span className="font-semibold tracking-tight text-white/90">Crazly</span>
-        </div>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&display=swap');
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+        @keyframes shimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
+        @keyframes spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes pulse-ring { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(1.8);opacity:0} }
+        @keyframes slide-up { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+        .shimmer-text {
+          background: linear-gradient(90deg, #6366f1 0%, #a5b4fc 30%, #fff 50%, #a5b4fc 70%, #6366f1 100%);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: shimmer 4s linear infinite;
+        }
+        .noise::after {
+          content:'';position:absolute;inset:0;
+          background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+          pointer-events:none;opacity:0.4;mix-blend-mode:overlay;
+        }
+        .marquee-track { animation: marquee 22s linear infinite; }
+        .marquee-track:hover { animation-play-state: paused; }
+      `}</style>
 
-        {/* Desktop nav links */}
-        <div className="hidden sm:flex items-center gap-6 text-sm text-white/40">
-          <span className="hover:text-white/70 transition-colors cursor-pointer">Workflows</span>
-          <span className="hover:text-white/70 transition-colors cursor-pointer">Pricing</span>
-          <span className="hover:text-white/70 transition-colors cursor-pointer">Docs</span>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Link
-            href="/workflows"
-            className="text-sm px-4 py-2 rounded-xl font-medium transition-all duration-200 hover:bg-white/10 active:scale-95"
-            style={{ border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)" }}
-          >
-            {/* CHANGE: Shorter label on mobile to save space */}
-            <span className="hidden sm:inline">Get started</span>
-            <span className="sm:hidden">Start</span>
+      {/* ═══ FIXED NAV ═══════════════════════════════════════════ */}
+      <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+        style={{
+          background: scrollY > 40 ? "rgba(6,6,8,0.9)" : "transparent",
+          backdropFilter: scrollY > 40 ? "blur(20px)" : "none",
+          borderBottom: scrollY > 40 ? "1px solid rgba(255,255,255,0.06)" : "1px solid transparent",
+        }}>
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-5 sm:px-8 py-4">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold transition-transform group-hover:scale-110"
+              style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>C</div>
+            <span className="font-bold tracking-tight text-white text-base">Crazly</span>
           </Link>
 
-          {/* CHANGE: Hamburger button — only shows on mobile */}
-          <button
-            className="sm:hidden flex flex-col gap-1.5 p-2"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Menu"
-          >
-            <span
-              className="block w-5 h-0.5 bg-white/50 rounded transition-all duration-200"
-              style={{ transform: menuOpen ? "rotate(45deg) translateY(8px)" : "none" }}
-            />
-            <span
-              className="block w-5 h-0.5 bg-white/50 rounded transition-all duration-200"
-              style={{ opacity: menuOpen ? 0 : 1 }}
-            />
-            <span
-              className="block w-5 h-0.5 bg-white/50 rounded transition-all duration-200"
-              style={{ transform: menuOpen ? "rotate(-45deg) translateY(-8px)" : "none" }}
-            />
-          </button>
+          {/* Desktop links */}
+          <div className="hidden md:flex items-center gap-1">
+            {[
+              { label: "Workflows", href: "/workflow" },
+              { label: "Pricing",   href: "/pricing" },
+              { label: "Docs",      href: "/docs" },
+            ].map(item => (
+              <Link key={item.label} href={item.href}
+                className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all duration-200">
+                {item.label}
+              </Link>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link href="/workflow"
+              className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 active:scale-95"
+              style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 4px 20px rgba(99,102,241,0.3)" }}>
+              Get started
+            </Link>
+            <button className="md:hidden p-2 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-all"
+              onClick={() => setMenuOpen(!menuOpen)}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                {menuOpen ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
+                  : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>}
+              </svg>
+            </button>
+          </div>
         </div>
+
+        {/* Mobile menu */}
+        {menuOpen && (
+          <div className="md:hidden border-t border-white/[0.06] px-5 py-4 flex flex-col gap-1"
+            style={{ background: "rgba(6,6,8,0.97)", backdropFilter: "blur(20px)" }}>
+            {[
+              { label: "Workflows", href: "/workflow" },
+              { label: "Pricing",   href: "/pricing" },
+              { label: "Docs",      href: "/docs" },
+            ].map(item => (
+              <Link key={item.label} href={item.href} onClick={() => setMenuOpen(false)}
+                className="px-4 py-3 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all">
+                {item.label}
+              </Link>
+            ))}
+            <Link href="/workflow" onClick={() => setMenuOpen(false)}
+              className="mt-2 px-4 py-3 rounded-xl text-sm font-semibold text-center"
+              style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>
+              Get started free
+            </Link>
+          </div>
+        )}
       </nav>
 
-      {/* CHANGE: Mobile dropdown menu */}
-      {menuOpen && (
-        <div
-          className="sm:hidden relative z-10 mx-5 mb-2 rounded-2xl overflow-hidden"
-          style={{ background: "rgba(15,15,15,0.95)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)" }}
-        >
-          {["Workflows", "Pricing", "Docs"].map((item) => (
-            <div
-              key={item}
-              className="px-5 py-3.5 text-sm text-white/50 hover:text-white/80 hover:bg-white/5 transition-colors cursor-pointer border-b border-white/[0.05] last:border-0"
-            >
-              {item}
+      {/* ═══ HERO ════════════════════════════════════════════════ */}
+      <section className="relative noise min-h-screen flex flex-col items-center justify-center text-center px-5 pt-24 pb-20 overflow-hidden">
+        {/* Deep background layers */}
+        <div className="absolute inset-0">
+          {/* Grid */}
+          <div className="absolute inset-0"
+            style={{ backgroundImage: "linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+          {/* Radial fade over grid */}
+          <div className="absolute inset-0"
+            style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, transparent 30%, #060608 80%)" }} />
+          {/* Center glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] rounded-full"
+            style={{ background: "radial-gradient(ellipse, rgba(99,102,241,0.12) 0%, transparent 65%)", filter: "blur(40px)" }} />
+          {/* Spinning ring */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-20"
+            style={{ border: "1px solid rgba(99,102,241,0.3)", animation: "spin-slow 30s linear infinite" }}>
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-[#6366f1]" style={{ boxShadow: "0 0 12px #6366f1" }} />
+          </div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full opacity-15"
+            style={{ border: "1px solid rgba(129,140,248,0.3)", animation: "spin-slow 20s linear infinite reverse" }}>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#818cf8]" style={{ boxShadow: "0 0 8px #818cf8" }} />
+          </div>
+        </div>
+
+        <Particles />
+
+        {/* Content */}
+        <div className="relative z-10 max-w-4xl mx-auto">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full text-xs font-semibold mb-10"
+            style={{
+              background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.25)",
+              color: "#a5b4fc", opacity: mounted ? 1 : 0,
+              animation: mounted ? "slide-up 0.5s ease forwards" : "none",
+            }}>
+            <span className="relative flex w-2 h-2">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-[#6366f1] opacity-75" style={{ animation: "pulse-ring 1.5s ease-out infinite" }} />
+              <span className="relative w-2 h-2 rounded-full bg-[#6366f1]" />
+            </span>
+            AI Workflow Intelligence Platform
+          </div>
+
+          {/* Main headline */}
+          <h1 className="font-bold leading-[1.05] tracking-tight mb-6"
+            style={{
+              fontSize: "clamp(36px, 6.5vw, 76px)",
+              fontFamily: "'DM Sans', sans-serif",
+              opacity: mounted ? 1 : 0,
+              animation: mounted ? "slide-up 0.6s ease 0.1s forwards" : "none",
+            }}>
+            <span className="text-white">Everyone Around You</span><br />
+            <span className="text-white">Is Using AI.</span><br />
+            <span className="shimmer-text">You're Still Figuring It Out.</span>
+          </h1>
+
+          {/* Sub */}
+          <p className="text-base sm:text-lg text-white/45 max-w-2xl mx-auto leading-relaxed mb-8 px-2"
+            style={{ opacity: mounted ? 1 : 0, animation: mounted ? "slide-up 0.6s ease 0.2s forwards" : "none" }}>
+            Crazly gives you the exact tools, prompts, and workflows used by the top 1% of professionals in your field — so you can stop experimenting and start executing.
+          </p>
+
+          {/* Benefits */}
+          <div className="flex flex-col items-center gap-2.5 mb-10"
+            style={{ opacity: mounted ? 1 : 0, animation: mounted ? "slide-up 0.6s ease 0.3s forwards" : "none" }}>
+            {[
+              "Know exactly which AI tools to use for your job — no guessing, no wasted hours",
+              "Copy-paste workflows built for real professionals, not tech hobbyists",
+              "Go from AI-curious to AI-fluent in days, not months",
+            ].map((b, i) => (
+              <div key={i} className="flex items-center gap-3 text-sm sm:text-base text-white/65">
+                <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
+                  style={{ background: "rgba(52,211,153,0.15)", border: "1px solid rgba(52,211,153,0.3)" }}>
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6l3 3 5-5" stroke="#34d399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                {b}
+              </div>
+            ))}
+          </div>
+
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3"
+            style={{ opacity: mounted ? 1 : 0, animation: mounted ? "slide-up 0.6s ease 0.4s forwards" : "none" }}>
+            <Link href="/workflow"
+              className="group relative inline-flex items-center gap-2 px-8 py-4 rounded-2xl text-sm font-bold w-full sm:w-auto justify-center transition-all hover:scale-[1.02] active:scale-[0.98]"
+              style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 0 0 1px rgba(99,102,241,0.5), 0 8px 40px rgba(99,102,241,0.35)" }}>
+              Get My AI Workflow →
+              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ background: "linear-gradient(135deg, #818cf8, #a5b4fc)" }} />
+              <span className="relative">Get My AI Workflow →</span>
+            </Link>
+            <button onClick={scrollToHowItWorks}
+              className="group inline-flex items-center gap-2 px-7 py-4 rounded-2xl text-sm font-medium text-white/55 hover:text-white/90 w-full sm:w-auto justify-center transition-all duration-200"
+              style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
+              <svg className="w-4 h-4 transition-transform group-hover:translate-y-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/>
+              </svg>
+              See how it works
+            </button>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30">
+          <span className="text-[10px] uppercase tracking-widest text-white">Scroll</span>
+          <div className="w-px h-10 overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
+            <div className="w-full h-4 bg-white/60 animate-bounce" />
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ MARQUEE STRIP ═══════════════════════════════════════ */}
+      <div className="py-5 border-y overflow-hidden" style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(99,102,241,0.03)" }}>
+        <div className="flex marquee-track whitespace-nowrap gap-12">
+          {Array.from({ length: 2 }).map((_, pass) => (
+            <div key={pass} className="flex items-center gap-12 shrink-0">
+              {["Developer", "Content Creator", "Marketing", "Student", "Startup Founder", "Freelancer", "Designer", "Consultant", "Product Manager", "Copywriter"].map((r, i) => (
+                <div key={i} className="flex items-center gap-3 text-sm font-medium text-white/30">
+                  <span className="w-1 h-1 rounded-full bg-[#6366f1]" />
+                  {r}
+                </div>
+              ))}
             </div>
           ))}
         </div>
-      )}
+      </div>
 
-      {/* ── Hero ── */}
-      {/* CHANGE: Tighter padding on mobile (pt-8 pb-16), larger on desktop (pt-12 pb-24) */}
-      <section className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-5 sm:px-6 pt-8 sm:pt-12 pb-16 sm:pb-24">
-
-        {/* Badge */}
-        <div
-          className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-medium mb-8 sm:mb-10"
-          style={{
-            background: "rgba(99,102,241,0.1)",
-            border: "1px solid rgba(99,102,241,0.25)",
-            color: "#a5b4fc",
-            opacity: mounted ? 1 : 0,
-            transform: mounted ? "none" : "translateY(8px)",
-            transition: "opacity 0.5s ease 0.1s, transform 0.5s ease 0.1s",
-          }}
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#6366f1] animate-pulse" />
-          {/* CHANGE: Shorter badge text on mobile */}
-          <span className="hidden sm:inline">AI Workflow Intelligence · MVP</span>
-          <span className="sm:hidden">AI Workflow Intelligence</span>
+      {/* ═══ PAIN SECTION ════════════════════════════════════════ */}
+      <section className="relative py-24 sm:py-32 px-5 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(251,113,133,0.05), transparent 70%)", filter: "blur(40px)" }} />
         </div>
 
-        {/* Headline */}
-        {/* CHANGE: Fluid font size — clamp from 36px mobile to 80px desktop */}
-        <h1
-          className="font-bold leading-[1.08] tracking-tight mb-4 max-w-4xl"
-          style={{
-            fontSize: "clamp(36px, 8vw, 80px)",
-            opacity: mounted ? 1 : 0,
-            transform: mounted ? "none" : "translateY(16px)",
-            transition: "opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s",
-            fontFamily: "'DM Sans', sans-serif",
-          }}
-        >
-          <span className="text-white">The AI playbook</span>
-          <br />
-          <span
-            style={{
-              background: "linear-gradient(135deg, #6366f1 0%, #a5b4fc 50%, #818cf8 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-          >
-            built for{" "}
-          </span>
-          {/* CHANGE: min-width shrinks on mobile so it doesn't overflow */}
-          <span
-            className="inline-block min-w-[160px] sm:min-w-[280px] text-left"
-            style={{
-              background: "linear-gradient(135deg, #a5b4fc 0%, #c4b5fd 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              opacity: fading ? 0 : 1,
-              transform: fading ? "translateY(-6px)" : "translateY(0)",
-              transition: "opacity 0.35s ease, transform 0.35s ease",
-            }}
-          >
-            {words[wordIndex]}
-          </span>
-        </h1>
+        <div className="max-w-3xl mx-auto">
+          <div ref={painInView.ref}>
+            <div className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest"
+              style={{
+                color: "#fb7185",
+                opacity: painInView.inView ? 1 : 0,
+                transform: painInView.inView ? "none" : "translateY(16px)",
+                transition: "opacity 0.6s ease, transform 0.6s ease",
+              }}>
+              <span className="w-4 h-px" style={{ background: "#fb7185" }} />
+              The real problem
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4"
+              style={{
+                opacity: painInView.inView ? 1 : 0,
+                transform: painInView.inView ? "none" : "translateY(20px)",
+                transition: "opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s",
+              }}>
+              You've heard AI can change everything.
+              <br />
+              <span style={{ color: "rgba(255,255,255,0.3)" }}>So why does it still feel like this?</span>
+            </h2>
+          </div>
 
-        {/* Subheadline */}
-        {/* CHANGE: Smaller text on mobile (text-sm), larger on desktop (text-lg) */}
-        <p
-          className="text-sm sm:text-lg text-white/40 max-w-xs sm:max-w-lg leading-relaxed mb-10 sm:mb-12 px-2"
-          style={{
-            opacity: mounted ? 1 : 0,
-            transform: mounted ? "none" : "translateY(16px)",
-            transition: "opacity 0.6s ease 0.35s, transform 0.6s ease 0.35s",
-          }}
-        >
-          Stop experimenting with AI. Get exact tools, exact prompts,
-          and step-by-step execution systems for your real work.
-        </p>
+          <div className="mt-10">
+            {[
+              "You've opened ChatGPT a dozen times, typed something, got a generic answer, and closed the tab feeling no different than before.",
+              "You know there are better tools out there — but researching, testing, and learning them is a full-time job you don't have time for.",
+              "You've watched someone else do something impressive with AI and thought \"how did they even know to do that.\"",
+              "Every week there's a new tool, a new model, a new \"game-changer\" — and somehow you're more confused than when you started.",
+              "The gap between you and the people who actually use AI well is growing, and you can feel it.",
+            ].map((text, i) => (
+              <PainItem key={i} text={text} delay={i * 80} />
+            ))}
+          </div>
 
-        {/* CTA group */}
-        {/* CHANGE: Stack buttons vertically on mobile, side by side on desktop */}
-        <div
-          className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto px-6 sm:px-0"
-          style={{
-            opacity: mounted ? 1 : 0,
-            transform: mounted ? "none" : "translateY(16px)",
-            transition: "opacity 0.6s ease 0.45s, transform 0.6s ease 0.45s",
-          }}
-        >
-          <Link
-            href="/workflows"
-            className="group relative inline-flex items-center justify-center gap-2 w-full sm:w-auto px-7 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 hover:opacity-90 active:scale-[0.97]"
-            style={{
-              background: "linear-gradient(135deg, #6366f1, #818cf8)",
-              boxShadow: "0 0 0 1px rgba(99,102,241,0.5), 0 8px 32px rgba(99,102,241,0.25)",
-            }}
-          >
-            Generate my workflow
-            <svg
-              className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5"
-              viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-              strokeLinecap="round" strokeLinejoin="round"
-            >
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
+          {/* Resolution tease */}
+          <div className="mt-12 p-6 rounded-2xl"
+            style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.2)" }}>
+            <p className="text-base sm:text-lg font-semibold text-white/80 leading-relaxed">
+              The problem isn't you. The problem is that nobody gave you the system. <span className="text-[#818cf8]">Until now.</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ HOW IT WORKS ════════════════════════════════════════ */}
+      <section ref={howItWorksRef as React.RefObject<HTMLElement>} className="relative py-24 sm:py-32 px-5 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 w-[800px] h-[400px] rounded-full"
+            style={{ background: "radial-gradient(ellipse, rgba(99,102,241,0.07), transparent 70%)", filter: "blur(60px)" }} />
+          {/* Vertical lines */}
+          {[20, 50, 80].map(pos => (
+            <div key={pos} className="absolute top-0 bottom-0 w-px"
+              style={{ left: `${pos}%`, background: "linear-gradient(to bottom, transparent, rgba(99,102,241,0.08), transparent)" }} />
+          ))}
+        </div>
+
+        <div className="max-w-5xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-16">
+            {(() => { const { ref, inView } = useInView(); return (
+              <div ref={ref}>
+                <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest mb-4"
+                  style={{ color: "#818cf8", opacity: inView ? 1 : 0, transform: inView ? "none" : "translateY(12px)", transition: "all 0.5s ease" }}>
+                  <span className="w-4 h-px bg-[#818cf8]" />
+                  The system
+                  <span className="w-4 h-px bg-[#818cf8]" />
+                </div>
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4"
+                  style={{ opacity: inView ? 1 : 0, transform: inView ? "none" : "translateY(20px)", transition: "all 0.6s ease 0.1s" }}>
+                  How Crazly Works
+                </h2>
+                <p className="text-base text-white/35 max-w-lg mx-auto"
+                  style={{ opacity: inView ? 1 : 0, transform: inView ? "none" : "translateY(16px)", transition: "all 0.6s ease 0.2s" }}>
+                  Three steps. Zero fluff. Real output.
+                </p>
+              </div>
+            ); })()}
+          </div>
+
+          {/* Steps grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-16">
+            <StepCard num="01" delay={0}
+              title="Choose Your Profession"
+              body="Tell us what you do. Developer, marketer, student, founder — Crazly instantly matches you with the workflow built specifically for your work, your tools, and your goals. No setup. No configuration. No generic advice." />
+            <StepCard num="02" delay={120}
+              title="Get Your AI Workflow"
+              body="You receive a complete, structured playbook. Which AI tools to use, in what order, for what tasks — plus the exact prompts that make them work. Built by people who already figured out the hard part so you don't have to." />
+            <StepCard num="03" delay={240}
+              title="Execute Faster"
+              body="Open your workflow. Follow the steps. Do in 20 minutes what used to take half a day. Every workflow is designed to produce real output immediately — not teach you theory, not send you down a research rabbit hole. Just results." />
+          </div>
+
+          {/* Bottom tagline */}
+          {(() => { const { ref, inView } = useInView(); return (
+            <div ref={ref} className="text-center"
+              style={{ opacity: inView ? 1 : 0, transform: inView ? "none" : "translateY(16px)", transition: "all 0.6s ease" }}>
+              <p className="text-base sm:text-lg text-white/40 italic">
+                "It's not magic. It's just the system you should have had from day one."
+              </p>
+            </div>
+          ); })()}
+        </div>
+      </section>
+
+      {/* ═══ SOCIAL PROOF ════════════════════════════════════════ */}
+      <section className="relative py-24 sm:py-32 px-5 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full"
+            style={{ background: "radial-gradient(ellipse, rgba(99,102,241,0.06), transparent 70%)", filter: "blur(40px)" }} />
+        </div>
+
+        <div ref={proofInView.ref} className="max-w-5xl mx-auto">
+          {/* Label */}
+          <div className="text-center mb-14"
+            style={{ opacity: proofInView.inView ? 1 : 0, transform: proofInView.inView ? "none" : "translateY(20px)", transition: "all 0.6s ease" }}>
+            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest mb-4"
+              style={{ color: "#818cf8" }}>
+              <span className="w-4 h-px bg-[#818cf8]" />
+              Early traction
+              <span className="w-4 h-px bg-[#818cf8]" />
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-3">Built for people who execute.</h2>
+            <p className="text-white/35 text-base max-w-md mx-auto">Used by freelancers, creators and developers adopting AI early.</p>
+          </div>
+
+          {/* Stat grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-14">
+            {[
+              { label: "Workflows available",     to: 5,    suffix: "",  sub: "Across 5 professional roles" },
+              { label: "AI tools mapped",         to: 30,   suffix: "+", sub: "Curated, not scraped" },
+              { label: "New workflows monthly",   to: 4,    suffix: "+", sub: "Added every week" },
+            ].map((s, i) => {
+              const { ref, inView } = useInView();
+              return (
+                <div key={i} ref={ref} className="flex flex-col items-center text-center p-8 rounded-2xl transition-all duration-300 group hover:scale-[1.02]"
+                  style={{
+                    background: "rgba(255,255,255,0.02)",
+                    border: "1px solid rgba(255,255,255,0.07)",
+                    opacity: inView ? 1 : 0,
+                    transform: inView ? "none" : "translateY(24px)",
+                    transition: `opacity 0.6s ease ${i * 120}ms, transform 0.6s ease ${i * 120}ms`,
+                  }}>
+                  <div className="text-4xl sm:text-5xl font-bold mb-2"
+                    style={{ background: "linear-gradient(135deg, #fff, rgba(255,255,255,0.5))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                    <Counter to={s.to} suffix={s.suffix} />
+                  </div>
+                  <p className="text-sm font-semibold text-white/70 mb-1">{s.label}</p>
+                  <p className="text-xs text-white/30">{s.sub}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Proof cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              { icon: "👥", title: "Used by early adopters", body: "Freelancers, creators and developers who want to be ahead of the curve, not left behind by it." },
+              { icon: "🔄", title: "New workflows weekly",   body: "New roles, new tools, new execution systems added every week as AI keeps evolving." },
+              { icon: "🎯", title: "Built for execution",    body: "Every workflow produces real output immediately — not AI theory, not hype. Just results." },
+            ].map((c, i) => {
+              const { ref, inView } = useInView();
+              return (
+                <div key={i} ref={ref} className="flex flex-col gap-4 p-6 rounded-2xl group hover:border-[rgba(99,102,241,0.3)] transition-all duration-300"
+                  style={{
+                    background: "rgba(255,255,255,0.02)",
+                    border: "1px solid rgba(255,255,255,0.07)",
+                    opacity: inView ? 1 : 0,
+                    transform: inView ? "none" : "translateY(20px)",
+                    transition: `opacity 0.6s ease ${i * 100}ms, transform 0.6s ease ${i * 100}ms`,
+                  }}>
+                  <span className="text-2xl">{c.icon}</span>
+                  <div>
+                    <p className="text-sm font-bold text-white/85 mb-1.5">{c.title}</p>
+                    <p className="text-sm text-white/35 leading-relaxed">{c.body}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ FINAL CTA ═══════════════════════════════════════════ */}
+      <section className="relative py-24 sm:py-32 px-5 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0"
+            style={{ backgroundImage: "linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+          <div className="absolute inset-0"
+            style={{ background: "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(99,102,241,0.1), transparent)" }} />
+        </div>
+
+        {(() => { const { ref, inView } = useInView(); return (
+          <div ref={ref} className="relative max-w-3xl mx-auto text-center"
+            style={{ opacity: inView ? 1 : 0, transform: inView ? "none" : "translateY(24px)", transition: "all 0.7s ease" }}>
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-8 mx-auto"
+              style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(129,140,248,0.1))", border: "1px solid rgba(99,102,241,0.3)" }}>
+              <span className="text-3xl">⚡</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-5">
+              Stop figuring it out.
+              <br />
+              <span className="shimmer-text">Start executing.</span>
+            </h2>
+            <p className="text-base text-white/40 max-w-md mx-auto mb-10 leading-relaxed">
+              Your AI workflow is one click away. Free to start. No credit card. No setup. Just results.
+            </p>
+            <Link href="/workflow"
+              className="group inline-flex items-center gap-3 px-10 py-5 rounded-2xl text-base font-bold transition-all hover:scale-[1.03] active:scale-[0.98]"
+              style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 0 0 1px rgba(99,102,241,0.5), 0 12px 48px rgba(99,102,241,0.4)" }}>
+              Get My AI Workflow — Free
+              <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </Link>
+          </div>
+        ); })()}
+      </section>
+
+      {/* ═══ FOOTER ══════════════════════════════════════════════ */}
+      <footer className="border-t px-5 sm:px-10 py-8" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold"
+              style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>C</div>
+            <span className="font-bold text-sm text-white/70">Crazly</span>
           </Link>
-
-          <button
-            className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 rounded-2xl text-sm font-medium text-white/50 hover:text-white/80 transition-all duration-200"
-            style={{ border: "1px solid rgba(255,255,255,0.08)" }}
-          >
-            See how it works
-          </button>
+          <div className="flex items-center gap-6 text-xs text-white/25">
+            <Link href="/workflow" className="hover:text-white/60 transition-colors">Workflows</Link>
+            <Link href="/pricing"  className="hover:text-white/60 transition-colors">Pricing</Link>
+            <Link href="/docs"     className="hover:text-white/60 transition-colors">Docs</Link>
+          </div>
+          <p className="text-xs text-white/20">© 2025 Crazly. Stop experimenting. Start executing.</p>
         </div>
-
-        {/* Stats strip */}
-        {/* CHANGE: Tighter gap on mobile */}
-        <div
-          className="mt-12 sm:mt-14 flex flex-wrap items-center justify-center gap-6 sm:gap-10"
-          style={{
-            opacity: mounted ? 1 : 0,
-            transition: "opacity 0.6s ease 0.6s",
-          }}
-        >
-          {[
-            { value: "5 roles", label: "covered" },
-            { value: "30+", label: "AI tools mapped" },
-            { value: "100%", label: "free in MVP" },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <p className="text-base sm:text-lg font-bold text-white/80">{stat.value}</p>
-              <p className="text-xs text-white/30 mt-0.5">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Feature strip ── */}
-      {/* CHANGE: Single column on mobile, 3 cols on desktop. Removed border-radius overflow clipping that broke on mobile */}
-      <section
-        className="relative z-10 border-t border-white/[0.06] px-5 sm:px-10 py-10 sm:py-12"
-        style={{
-          background: "rgba(255,255,255,0.01)",
-          opacity: mounted ? 1 : 0,
-          transition: "opacity 0.6s ease 0.7s",
-        }}
-      >
-        <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {[
-            {
-              icon: "⌥",
-              title: "Pick your role",
-              body: "Developer, Founder, Creator, Marketer, Student — Crazly knows your context.",
-            },
-            {
-              icon: "◎",
-              title: "Describe the problem",
-              body: "Type what you're stuck on. No AI jargon required. Just your real-world situation.",
-            },
-            {
-              icon: "⚡",
-              title: "Execute the workflow",
-              body: "Get exact tools and ordered steps. No fluff, no theory — just execution.",
-            },
-          ].map((f, i) => (
-            <div
-              key={i}
-              className="flex flex-col gap-4 px-5 sm:px-7 py-6 sm:py-8 rounded-2xl hover:bg-white/[0.02] transition-colors duration-300"
-              style={{ background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.07)" }}
-            >
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-sm"
-                style={{
-                  background: "rgba(99,102,241,0.1)",
-                  border: "1px solid rgba(99,102,241,0.2)",
-                  fontFamily: "monospace",
-                  color: "#a5b4fc",
-                }}
-              >
-                {f.icon}
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-white/85 mb-1.5">{f.title}</p>
-                <p className="text-sm text-white/35 leading-relaxed">{f.body}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Footer ── */}
-      {/* CHANGE: Stack footer items on very small screens */}
-      <footer className="relative z-10 border-t border-white/[0.05] px-5 sm:px-10 py-4 sm:py-5 flex flex-col sm:flex-row items-center gap-1 sm:justify-between">
-        <span className="text-xs text-white/20">© 2025 Crazly</span>
-        <span className="text-xs text-white/20">Stop experimenting. Start executing.</span>
       </footer>
     </main>
   );
