@@ -119,8 +119,14 @@ function AuthModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () 
         <button onClick={onClose}
           className="absolute top-4 right-4 w-8 h-8 rounded-xl flex items-center justify-center text-white/30 hover:text-white/60 hover:bg-white/5 transition-all">✕</button>
         <div className="flex items-center gap-2 mb-6">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold"
-            style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>C</div>
+        <video
+  src="/videos/logo.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  className="w-8 h-8 rounded-lg object-cover"
+/>
           <span className="font-semibold text-white/90">Crazly</span>
         </div>
         <h3 className="text-xl font-bold text-white mb-1">

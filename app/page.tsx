@@ -172,8 +172,14 @@ export default function Home() {
         }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between px-5 sm:px-8 py-4">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold transition-transform group-hover:scale-110"
-              style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>C</div>
+          <video
+  src="/videos/logo.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  className="w-14 h-14 rounded-2xl object-cover"
+/>
             <span className="font-bold tracking-tight text-white text-base">Crazly</span>
           </Link>
 

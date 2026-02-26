@@ -105,13 +105,19 @@ export default function DocsPage() {
       <nav className="relative z-10 flex items-center justify-between px-5 sm:px-10 py-4 border-b border-white/[0.06]"
         style={{ opacity: mounted ? 1 : 0, transition: "opacity 0.4s ease" }}>
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold transition-transform group-hover:scale-110"
-            style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>C</div>
+        <video
+  src="/videos/logo.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  className="w-8 h-8 rounded-lg object-cover"
+/>
           <span className="font-semibold tracking-tight text-white/90">Crazly</span>
           <span className="hidden sm:block text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/30 border border-white/10">Docs</span>
         </Link>
         <div className="flex items-center gap-3">
-          <Link href="/workflow"
+          <Link href="/workflows"
             className="text-sm px-4 py-2 rounded-xl font-medium text-white/60 hover:text-white/90 transition-all"
             style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
             Try Crazly →
