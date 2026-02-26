@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";  // ← ADD THIS LINE
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +26,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* ↓ ADD THIS LINE HERE ↓ */}
         <link
           href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap"
           rel="stylesheet"
@@ -35,6 +35,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         {children}
+        <Analytics />  {/* ← ADD THIS LINE */}
       </body>
     </html>
   );
