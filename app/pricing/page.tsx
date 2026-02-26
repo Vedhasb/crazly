@@ -67,7 +67,7 @@ export default function PricingPage() {
       <nav className="relative z-10 flex items-center justify-between px-5 sm:px-10 py-4 border-b border-white/[0.06]"
         style={{ opacity: mounted ? 1 : 0, transition: "opacity 0.4s ease" }}>
         <Link href="/" className="flex items-center gap-2.5">
-        <video
+          <video
   src="/videos/logo.mp4"
   autoPlay
   loop
