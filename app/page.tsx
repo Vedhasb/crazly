@@ -38,6 +38,21 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
   return <span ref={ref}>{val.toLocaleString()}{suffix}</span>;
 }
 
+/* ─── LOGO ────────────────────────────────────────────────────── */
+function Logo({ size = "sm" }: { size?: "sm" | "lg" }) {
+  const dim = size === "lg" ? "w-14 h-14 rounded-2xl" : "w-8 h-8 rounded-xl";
+  return (
+    <video
+      src="/videos/logo.mp4"
+      autoPlay
+      loop
+      muted
+      playsInline
+      className={`${dim} object-cover`}
+    />
+  );
+}
+
 /* ─── FLOATING PARTICLES ──────────────────────────────────────── */
 function Particles() {
   const particles = Array.from({ length: 24 }, (_, i) => ({
@@ -118,11 +133,11 @@ function PainItem({ text, delay }: { text: string; delay: number }) {
   );
 }
 
-/* ─── STAT CARD (extracted to fix hooks-in-map) ──────────────── */
+/* ─── STAT CARD ───────────────────────────────────────────────── */
 function StatCard({ label, to, suffix, sub, delay }: { label: string; to: number; suffix: string; sub: string; delay: number }) {
   const { ref, inView } = useInView();
   return (
-    <div ref={ref} className="flex flex-col items-center text-center p-8 rounded-2xl group hover:scale-[1.02] transition-all duration-300"
+    <div ref={ref} className="flex flex-col items-center text-center p-8 rounded-2xl hover:scale-[1.02] transition-all duration-300"
       style={{
         background: "rgba(255,255,255,0.02)",
         border: "1px solid rgba(255,255,255,0.07)",
@@ -140,7 +155,7 @@ function StatCard({ label, to, suffix, sub, delay }: { label: string; to: number
   );
 }
 
-/* ─── PROOF CARD (extracted to fix hooks-in-map) ─────────────── */
+/* ─── PROOF CARD ──────────────────────────────────────────────── */
 function ProofCard({ icon, title, body, delay }: { icon: string; title: string; body: string; delay: number }) {
   const { ref, inView } = useInView();
   return (
@@ -199,15 +214,14 @@ function HowItWorksTagline() {
   );
 }
 
-/* ─── FINAL CTA SECTION ───────────────────────────────────────── */
+/* ─── FINAL CTA ───────────────────────────────────────────────── */
 function FinalCTA() {
   const { ref, inView } = useInView();
   return (
     <div ref={ref} className="relative max-w-3xl mx-auto text-center"
       style={{ opacity: inView ? 1 : 0, transform: inView ? "none" : "translateY(24px)", transition: "all 0.7s ease" }}>
-      <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-8 mx-auto"
-        style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(129,140,248,0.1))", border: "1px solid rgba(99,102,241,0.3)" }}>
-        <span className="text-3xl">⚡</span>
+      <div className="flex items-center justify-center mb-8">
+        <Logo size="lg" />
       </div>
       <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-5">
         Stop figuring it out.
@@ -217,19 +231,25 @@ function FinalCTA() {
       <p className="text-base text-white/40 max-w-md mx-auto mb-10 leading-relaxed">
         Your AI workflow is one click away. Free to start. No credit card. No setup. Just results.
       </p>
-      <Link href="/workflow"
+      <Link
+        href="/workflows"
         className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl text-base font-bold transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]"
-        style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 0 0 1px rgba(99,102,241,0.5), 0 12px 48px rgba(99,102,241,0.4)" }}>
+        style={{
+          background: "linear-gradient(135deg, #6366f1, #818cf8)",
+          boxShadow: "0 0 0 1px rgba(99,102,241,0.5), 0 12px 48px rgba(99,102,241,0.4)",
+        }}>
         Get My AI Workflow — Free
         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
         </svg>
       </Link>
     </div>
   );
 }
 
-/* ─── MAIN PAGE ───────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   MAIN PAGE
+═══════════════════════════════════════════════════════════════ */
 export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [scrollY, setScrollY] = useState(0);
@@ -255,12 +275,12 @@ export default function Home() {
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-        @keyframes shimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
-        @keyframes spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        @keyframes pulse-ring { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(1.8);opacity:0} }
-        @keyframes slide-up { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+        @keyframes float      { 0%,100%{transform:translateY(0)}   50%{transform:translateY(-12px)} }
+        @keyframes shimmer    { 0%{background-position:200% center} 100%{background-position:-200% center} }
+        @keyframes spin-slow  { from{transform:rotate(0deg)}        to{transform:rotate(360deg)} }
+        @keyframes pulse-ring { 0%{transform:scale(1);opacity:0.6}  100%{transform:scale(1.8);opacity:0} }
+        @keyframes slide-up   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes marquee    { from{transform:translateX(0)}        to{transform:translateX(-50%)} }
         .shimmer-text {
           background: linear-gradient(90deg, #6366f1 0%, #a5b4fc 30%, #fff 50%, #a5b4fc 70%, #6366f1 100%);
           background-size: 200% auto;
@@ -280,43 +300,56 @@ export default function Home() {
           backdropFilter: scrollY > 40 ? "blur(20px)" : "none",
           borderBottom: scrollY > 40 ? "1px solid rgba(255,255,255,0.06)" : "1px solid transparent",
         }}>
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-5 sm:px-8 py-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-5 sm:px-8 py-3">
+
+          {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold transition-transform group-hover:scale-110"
-              style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>C</div>
+            <Logo size="sm" />
             <span className="font-bold tracking-tight text-white text-base">Crazly</span>
           </Link>
 
+          {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
-            <Link href="/workflow" className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Workflows</Link>
+            <Link href="/workflows" className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Workflows</Link>
             <Link href="/pricing"  className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Pricing</Link>
             <Link href="/docs"     className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Docs</Link>
           </div>
 
           <div className="flex items-center gap-2">
-            <Link href="/workflow"
-              className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 active:scale-95"
+            {/* Single CTA in nav */}
+            <Link href="/workflows"
+              className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 active:scale-95"
               style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 4px 20px rgba(99,102,241,0.3)" }}>
               Get started
             </Link>
+
+            {/* Hamburger */}
             <button className="md:hidden p-2 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-all"
               onClick={() => setMenuOpen(!menuOpen)}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 {menuOpen
-                  ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
-                  : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>}
+                  ? <><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></>
+                  : <><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></>}
               </svg>
             </button>
           </div>
         </div>
 
+        {/* Mobile dropdown */}
         {menuOpen && (
           <div className="md:hidden border-t border-white/[0.06] px-5 py-4 flex flex-col gap-1"
             style={{ background: "rgba(6,6,8,0.97)", backdropFilter: "blur(20px)" }}>
-            <Link href="/workflow" onClick={() => setMenuOpen(false)} className="px-4 py-3 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all">Workflows</Link>
-            <Link href="/pricing"  onClick={() => setMenuOpen(false)} className="px-4 py-3 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all">Pricing</Link>
-            <Link href="/docs"     onClick={() => setMenuOpen(false)} className="px-4 py-3 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all">Docs</Link>
-            <Link href="/workflow" onClick={() => setMenuOpen(false)}
+            {[
+              { label: "Workflows", href: "/workflows" },
+              { label: "Pricing",   href: "/pricing" },
+              { label: "Docs",      href: "/docs" },
+            ].map(item => (
+              <Link key={item.label} href={item.href} onClick={() => setMenuOpen(false)}
+                className="px-4 py-3 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all">
+                {item.label}
+              </Link>
+            ))}
+            <Link href="/workflows" onClick={() => setMenuOpen(false)}
               className="mt-2 px-4 py-3 rounded-xl text-sm font-semibold text-center"
               style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>
               Get started free
@@ -327,7 +360,8 @@ export default function Home() {
 
       {/* ═══ HERO ════════════════════════════════════════════════ */}
       <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-5 pt-24 pb-20 overflow-hidden">
-        {/* Background layers */}
+
+        {/* BG layers */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0"
             style={{ backgroundImage: "linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
@@ -350,7 +384,7 @@ export default function Home() {
 
         <Particles />
 
-        {/* Hero content */}
+        {/* Content */}
         <div className="relative z-10 max-w-4xl mx-auto">
 
           {/* Badge */}
@@ -382,13 +416,14 @@ export default function Home() {
             <span className="shimmer-text">You're Still Figuring It Out.</span>
           </h1>
 
-          {/* Subheadline */}
+          {/* Sub */}
           <p className="text-base sm:text-lg text-white/45 max-w-2xl mx-auto leading-relaxed mb-8 px-2"
             style={{
               opacity: mounted ? 1 : 0,
               animation: mounted ? "slide-up 0.6s ease 0.2s forwards" : "none",
             }}>
-            Crazly gives you the exact tools, prompts, and workflows used by the top 1% of professionals in your field — so you can stop experimenting and start executing.
+            Crazly gives you the exact tools, prompts, and workflows used by the top 1% of professionals
+            in your field — so you can stop experimenting and start executing.
           </p>
 
           {/* Benefits */}
@@ -406,7 +441,7 @@ export default function Home() {
                 <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
                   style={{ background: "rgba(52,211,153,0.15)", border: "1px solid rgba(52,211,153,0.3)" }}>
                   <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                    <path d="M2 6l3 3 5-5" stroke="#34d399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M2 6l3 3 5-5" stroke="#34d399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 {b}
@@ -414,16 +449,18 @@ export default function Home() {
             ))}
           </div>
 
-          {/* ── CTA BUTTONS ── */}
+          {/* ── CTA BUTTONS ─────────────────────────────────────
+              PRIMARY  → /workflow (hard Link, no nesting issues)
+              SECONDARY → smooth scroll to How It Works section
+          ─────────────────────────────────────────────────────── */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3"
             style={{
               opacity: mounted ? 1 : 0,
               animation: mounted ? "slide-up 0.6s ease 0.4s forwards" : "none",
             }}>
 
-            {/* PRIMARY — fixed, no nested absolute divs or duplicate spans */}
             <Link
-              href="/workflow"
+              href="/workflows"
               className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 rounded-2xl text-sm font-bold transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
               style={{
                 background: "linear-gradient(135deg, #6366f1, #818cf8)",
@@ -432,15 +469,14 @@ export default function Home() {
               Get My AI Workflow →
             </Link>
 
-            {/* SECONDARY — scrolls to How It Works */}
             <button
               onClick={scrollToHowItWorks}
               className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-7 py-4 rounded-2xl text-sm font-medium text-white/55 hover:text-white/90 transition-all duration-200"
               style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="8 12 12 16 16 12"/>
-                <line x1="12" y1="8" x2="12" y2="16"/>
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="8 12 12 16 16 12" />
+                <line x1="12" y1="8" x2="12" y2="16" />
               </svg>
               See how it works
             </button>
@@ -605,21 +641,22 @@ export default function Home() {
       </section>
 
       {/* ═══ FOOTER ══════════════════════════════════════════════ */}
-      <footer className="border-t px-5 sm:px-10 py-8" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+      <footer className="border-t px-5 sm:px-10 py-8"
+        style={{ borderColor: "rgba(255,255,255,0.06)" }}>
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold"
-              style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>C</div>
+            <Logo size="sm" />
             <span className="font-bold text-sm text-white/70">Crazly</span>
           </Link>
           <div className="flex items-center gap-6 text-xs text-white/25">
-            <Link href="/workflow" className="hover:text-white/60 transition-colors">Workflows</Link>
+            <Link href="/workflows" className="hover:text-white/60 transition-colors">Workflows</Link>
             <Link href="/pricing"  className="hover:text-white/60 transition-colors">Pricing</Link>
             <Link href="/docs"     className="hover:text-white/60 transition-colors">Docs</Link>
           </div>
           <p className="text-xs text-white/20">© 2025 Crazly. Stop experimenting. Start executing.</p>
         </div>
       </footer>
+
     </main>
   );
 }
