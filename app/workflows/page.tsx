@@ -17,9 +17,19 @@ const roles: { key: Role; label: string; icon: string; description: string }[] =
 
 /* ─── LOGO ────────────────────────────────────────────────────── */
 function Logo() {
+  const [videoError, setVideoError] = useState(false);
+  if (videoError) {
+    return (
+      <div className="w-8 h-8 rounded-xl flex items-center justify-center font-bold text-white text-sm shrink-0"
+        style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>
+        C
+      </div>
+    );
+  }
   return (
     <video src="/videos/logo.mp4" autoPlay loop muted playsInline
-      className="w-8 h-8 rounded-xl object-cover" />
+      onError={() => setVideoError(true)}
+      className="w-8 h-8 rounded-xl object-cover shrink-0" />
   );
 }
 
@@ -504,31 +514,75 @@ export default function WorkflowsPage() {
             <div ref={bottomRef} />
           </div>
 
-          {/* ── INPUT BAR — hidden for non-signed-in users after result shown ── */}
-          {selectedRole && !hideInput && (
-            <div className="px-4 sm:px-8 py-4 sm:py-5 border-t border-white/[0.06]"
-              style={{ background: "rgba(8,8,8,0.8)", backdropFilter: "blur(12px)" }}>
-              <div className="flex items-center gap-2.5 sm:gap-3 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl transition-all"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)" }}>
-                <input ref={inputRef}
-                  placeholder={`Describe your ${roles.find(r => r.key === selectedRole)?.label.toLowerCase()} problem...`}
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && handleGenerate()}
-                  disabled={isTyping}
-                  className="flex-1 bg-transparent text-base sm:text-sm text-white/80 placeholder:text-white/25 outline-none disabled:opacity-50" />
-                <button onClick={handleGenerate} disabled={!input.trim() || isTyping}
-                  className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all disabled:opacity-30 active:scale-90"
-                  style={{ background: input.trim() && !isTyping ? "linear-gradient(135deg, #6366f1, #818cf8)" : "rgba(255,255,255,0.08)" }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
-                  </svg>
-                </button>
-              </div>
-              <p className="text-[10px] text-white/20 text-center mt-2">
-                Press Enter to generate · Crazly simulates AI workflows
-              </p>
-            </div>
+          {/* ── BOTTOM BAR ───────────────────────────────────────────── */}
+          {selectedRole && (
+            <>
+              {/* After first result + not signed in → Pro upsell bar */}
+              {hideInput ? (
+                <div className="px-4 sm:px-6 py-4 border-t border-white/[0.06]"
+                  style={{ background: "rgba(8,8,8,0.95)", backdropFilter: "blur(16px)" }}>
+                  <div className="flex flex-col sm:flex-row items-center gap-3 px-4 py-4 rounded-2xl"
+                    style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.12), rgba(129,140,248,0.06))", border: "1px solid rgba(99,102,241,0.3)" }}>
+
+                    {/* Left — lock icon + text */}
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                        style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-white leading-tight">Unlock unlimited workflows + exact prompts</p>
+                        <p className="text-xs text-white/40 mt-0.5">Pro plan · $9/mo or ₹749/mo · Cancel anytime</p>
+                      </div>
+                    </div>
+
+                    {/* Right — CTAs */}
+                    <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                      <Link href="/pricing"
+                        className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-bold text-white text-center transition-all hover:opacity-90 active:scale-95"
+                        style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
+                        Get Pro →
+                      </Link>
+                      <SignInButton mode="redirect">
+                        <button className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-medium text-white/60 hover:text-white transition-all whitespace-nowrap"
+                          style={{ border: "1px solid rgba(255,255,255,0.12)" }}>
+                          Free signup
+                        </button>
+                      </SignInButton>
+                    </div>
+                  </div>
+                </div>
+
+              ) : (
+                /* Normal input bar — shown before first result, or for signed-in users */
+                <div className="px-4 sm:px-8 py-4 sm:py-5 border-t border-white/[0.06]"
+                  style={{ background: "rgba(8,8,8,0.8)", backdropFilter: "blur(12px)" }}>
+                  <div className="flex items-center gap-2.5 sm:gap-3 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl transition-all"
+                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)" }}>
+                    <input ref={inputRef}
+                      placeholder={`Describe your ${roles.find(r => r.key === selectedRole)?.label.toLowerCase()} problem...`}
+                      value={input}
+                      onChange={e => setInput(e.target.value)}
+                      onKeyDown={e => e.key === "Enter" && handleGenerate()}
+                      disabled={isTyping}
+                      className="flex-1 bg-transparent text-base sm:text-sm text-white/80 placeholder:text-white/25 outline-none disabled:opacity-50" />
+                    <button onClick={handleGenerate} disabled={!input.trim() || isTyping}
+                      className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all disabled:opacity-30 active:scale-90"
+                      style={{ background: input.trim() && !isTyping ? "linear-gradient(135deg, #6366f1, #818cf8)" : "rgba(255,255,255,0.08)" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+                      </svg>
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-white/20 text-center mt-2">
+                    Press Enter to generate · Crazly simulates AI workflows
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </main>
       </div>
