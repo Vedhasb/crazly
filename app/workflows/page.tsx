@@ -441,75 +441,12 @@ export default function WorkflowsPage() {
                     </div>
                   </div>
 
-                  {/* Premium lock */}
-                  <div className="rounded-2xl overflow-hidden"
-                    style={{ opacity: visibleSteps >= workflows[selectedRole].steps.length ? 1 : 0, transition: "opacity 0.4s ease 0.3s", background: "linear-gradient(135deg, rgba(251,191,36,0.06), rgba(245,158,11,0.04))", border: "1px solid rgba(251,191,36,0.2)" }}>
-                    <div className="px-3.5 sm:px-4 py-3.5 sm:py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl flex items-center justify-center text-sm shrink-0"
-                          style={{ background: "rgba(251,191,36,0.1)" }}>🔒</div>
-                        <div>
-                          <p className="text-sm font-semibold text-amber-300">Unlock Premium Prompts</p>
-                          <p className="text-[11px] text-white/35">Exact AI prompts, scripts & pro templates</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 w-full sm:w-auto">
-                        {isSignedIn ? (
-                          <Link href="/pricing"
-                            className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-semibold text-amber-900 hover:opacity-90 active:scale-95 transition-all text-center"
-                            style={{ background: "linear-gradient(135deg, #fbbf24, #f59e0b)" }}>
-                            Upgrade to Pro
-                          </Link>
-                        ) : (
-                          <button onClick={() => { setEmailSource("upgrade"); setShowEmail(true); }}
-                            className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-semibold text-amber-900 hover:opacity-90 active:scale-95 transition-all"
-                            style={{ background: "linear-gradient(135deg, #fbbf24, #f59e0b)" }}>
-                            Get early access
-                          </button>
-                        )}
-                        <Link href="/pricing"
-                          className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-semibold text-white/60 hover:text-white/90 text-center transition-all"
-                          style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
-                          See plans
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-
                   <p className="text-[10px] text-white/20 mt-2 ml-1">Crazly AI · now</p>
                 </div>
               </div>
             )}
 
-            {/* ── SIGN IN WALL — shown AFTER result for non-signed-in users ── */}
-            {hideInput && (
-              <div className="flex items-start gap-2.5 sm:gap-3 max-w-2xl">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-bold"
-                  style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>AI</div>
-                <div className="flex-1">
-                  <div className="px-4 py-4 rounded-2xl rounded-tl-sm"
-                    style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.25)" }}>
-                    <p className="text-sm font-semibold text-white/80 mb-1">Want to go deeper?</p>
-                    <p className="text-xs text-white/40 mb-4 leading-relaxed">
-                      Create a free account to ask follow-up questions, try other roles, and get unlimited workflows.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <SignInButton mode="redirect">
-                        <button className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 active:scale-95"
-                          style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>
-                          Sign up free — it takes 30 seconds
-                        </button>
-                      </SignInButton>
-                      <button onClick={() => handleRoleSelect(selectedRole!)}
-                        className="flex-1 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:text-white/80 transition-all"
-                        style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
-                        Try another role
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+
 
             <div ref={bottomRef} />
           </div>
@@ -539,29 +476,13 @@ export default function WorkflowsPage() {
                       </div>
                     </div>
 
-                    {/* CTAs — differ based on auth state */}
+                    {/* Single CTA — Get Pro */}
                     <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
                       <Link href="/pricing"
                         className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-bold text-white text-center transition-all hover:opacity-90 active:scale-95"
                         style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
                         Get Pro →
                       </Link>
-                      {/* Signed-in users: try another role. Non-signed-in: free signup */}
-                      {isSignedIn ? (
-                        <button
-                          onClick={() => handleRoleSelect(selectedRole!)}
-                          className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-medium text-white/60 hover:text-white transition-all whitespace-nowrap"
-                          style={{ border: "1px solid rgba(255,255,255,0.12)" }}>
-                          Try another role
-                        </button>
-                      ) : (
-                        <SignInButton mode="redirect">
-                          <button className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-medium text-white/60 hover:text-white transition-all whitespace-nowrap"
-                            style={{ border: "1px solid rgba(255,255,255,0.12)" }}>
-                            Free signup
-                          </button>
-                        </SignInButton>
-                      )}
                     </div>
                   </div>
                 </div>
