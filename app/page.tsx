@@ -323,14 +323,14 @@ export default function Home() {
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
-            <Link href="/workflow" className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Workflows</Link>
+            <Link href="/workflows" className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Workflows</Link>
             <Link href="/pricing"  className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Pricing</Link>
             <Link href="/docs"     className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Docs</Link>
           </div>
 
           <div className="flex items-center gap-2">
             {/* Single CTA in nav */}
-            <Link href="/workflow"
+            <Link href="/workflows"
               className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 active:scale-95"
               style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 4px 20px rgba(99,102,241,0.3)" }}>
               Get started
@@ -353,7 +353,7 @@ export default function Home() {
           <div className="md:hidden border-t border-white/[0.06] px-5 py-4 flex flex-col gap-1"
             style={{ background: "rgba(6,6,8,0.97)", backdropFilter: "blur(20px)" }}>
             {[
-              { label: "Workflows", href: "/workflow" },
+              { label: "Workflows", href: "/workflows" },
               { label: "Pricing",   href: "/pricing" },
               { label: "Docs",      href: "/docs" },
             ].map(item => (
@@ -362,7 +362,7 @@ export default function Home() {
                 {item.label}
               </Link>
             ))}
-            <Link href="/workflow" onClick={() => setMenuOpen(false)}
+            <Link href="/workflows" onClick={() => setMenuOpen(false)}
               className="mt-2 px-4 py-3 rounded-xl text-sm font-semibold text-center"
               style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>
               Get started free
@@ -473,7 +473,7 @@ export default function Home() {
             }}>
 
             <Link
-              href="/workflow"
+              href="/workflows"
               className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 rounded-2xl text-sm font-bold transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
               style={{
                 background: "linear-gradient(135deg, #6366f1, #818cf8)",
@@ -662,7 +662,7 @@ export default function Home() {
             <span className="font-bold text-sm text-white/70">Crazly</span>
           </Link>
           <div className="flex items-center gap-6 text-xs text-white/25">
-            <Link href="/workflow" className="hover:text-white/60 transition-colors">Workflows</Link>
+            <Link href="/workflows" className="hover:text-white/60 transition-colors">Workflows</Link>
             <Link href="/pricing"  className="hover:text-white/60 transition-colors">Pricing</Link>
             <Link href="/docs"     className="hover:text-white/60 transition-colors">Docs</Link>
           </div>
