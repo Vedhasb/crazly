@@ -56,7 +56,7 @@ function ToolBadge({ tool }: { tool: string }) {
 }
 
 /* ─── EMAIL MODAL ─────────────────────────────────────────────── */
-function EmailModal({ onClose, source }: { onClose: () => void; source: "workflows" | "upgrade" }) {
+function EmailModal({ onClose, source }: { onClose: () => void; source: "workflow" | "upgrade" }) {
   const [email, setEmail]         = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading]     = useState(false);
@@ -201,10 +201,10 @@ export default function WorkflowsPage() {
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
-  // Input bar is locked (hidden gated) after 1st prompt for non-signed-in users
-  const inputLocked = promptCount >= 1 && !isSignedIn;
-  // Hide input completely once result shown and user is not signed in
-  const hideInput = showResult && !isSignedIn;
+  // Hide input completely once a result has been shown
+  // — non-signed-in users: always hide after first result (show Pro upsell instead)
+  // — signed-in users: hide after first result too (no second prompt = no repeated response)
+  const hideInput = showResult;
 
   return (
     <div className="min-h-screen bg-[#080808] text-white flex flex-col"
@@ -517,14 +517,14 @@ export default function WorkflowsPage() {
           {/* ── BOTTOM BAR ───────────────────────────────────────────── */}
           {selectedRole && (
             <>
-              {/* After first result + not signed in → Pro upsell bar */}
+              {/* After first result → always show Pro upsell, never the input box again */}
               {hideInput ? (
                 <div className="px-4 sm:px-6 py-4 border-t border-white/[0.06]"
                   style={{ background: "rgba(8,8,8,0.95)", backdropFilter: "blur(16px)" }}>
                   <div className="flex flex-col sm:flex-row items-center gap-3 px-4 py-4 rounded-2xl"
                     style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.12), rgba(129,140,248,0.06))", border: "1px solid rgba(99,102,241,0.3)" }}>
 
-                    {/* Left — lock icon + text */}
+                    {/* Lock icon + text */}
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                         style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>
@@ -539,25 +539,35 @@ export default function WorkflowsPage() {
                       </div>
                     </div>
 
-                    {/* Right — CTAs */}
+                    {/* CTAs — differ based on auth state */}
                     <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
                       <Link href="/pricing"
                         className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-bold text-white text-center transition-all hover:opacity-90 active:scale-95"
                         style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
                         Get Pro →
                       </Link>
-                      <SignInButton mode="redirect">
-                        <button className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-medium text-white/60 hover:text-white transition-all whitespace-nowrap"
+                      {/* Signed-in users: try another role. Non-signed-in: free signup */}
+                      {isSignedIn ? (
+                        <button
+                          onClick={() => handleRoleSelect(selectedRole!)}
+                          className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-medium text-white/60 hover:text-white transition-all whitespace-nowrap"
                           style={{ border: "1px solid rgba(255,255,255,0.12)" }}>
-                          Free signup
+                          Try another role
                         </button>
-                      </SignInButton>
+                      ) : (
+                        <SignInButton mode="redirect">
+                          <button className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-medium text-white/60 hover:text-white transition-all whitespace-nowrap"
+                            style={{ border: "1px solid rgba(255,255,255,0.12)" }}>
+                            Free signup
+                          </button>
+                        </SignInButton>
+                      )}
                     </div>
                   </div>
                 </div>
 
               ) : (
-                /* Normal input bar — shown before first result, or for signed-in users */
+                /* Input bar — only shown before first result */
                 <div className="px-4 sm:px-8 py-4 sm:py-5 border-t border-white/[0.06]"
                   style={{ background: "rgba(8,8,8,0.8)", backdropFilter: "blur(12px)" }}>
                   <div className="flex items-center gap-2.5 sm:gap-3 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl transition-all"
