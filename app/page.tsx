@@ -238,7 +238,7 @@ function FinalCTA() {
         Your AI workflow is one click away. Free to start. No credit card. No setup. Just results.
       </p>
       {/* ✅ /workflow — NO S */}
-      <Link href="/workflow"
+      <Link href="/workflows"
         className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl text-base font-bold transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]"
         style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 0 0 1px rgba(99,102,241,0.5), 0 12px 48px rgba(99,102,241,0.4)" }}>
         Get My AI Workflow — Free
@@ -312,14 +312,14 @@ export default function Home() {
 
           <div className="hidden md:flex items-center gap-1">
             {/* ✅ ALL /workflow — NO S */}
-            <Link href="/workflow" className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Workflows</Link>
+            <Link href="/workflows" className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Workflows</Link>
             <Link href="/pricing"  className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Pricing</Link>
             <Link href="/docs"     className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Docs</Link>
           </div>
 
           <div className="flex items-center gap-2">
             {/* ✅ /workflow — NO S */}
-            <Link href="/workflow"
+            <Link href="/workflows"
               className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 active:scale-95"
               style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 4px 20px rgba(99,102,241,0.3)" }}>
               Get started
@@ -341,7 +341,7 @@ export default function Home() {
             style={{ background: "rgba(6,6,8,0.97)", backdropFilter: "blur(20px)" }}>
             {/* ✅ ALL /workflow — NO S */}
             {[
-              { label: "Workflows", href: "/workflow" },
+              { label: "Workflows", href: "/workflows" },
               { label: "Pricing",   href: "/pricing" },
               { label: "Docs",      href: "/docs" },
             ].map(item => (
@@ -351,7 +351,7 @@ export default function Home() {
               </Link>
             ))}
             {/* ✅ /workflow — NO S */}
-            <Link href="/workflow" onClick={() => setMenuOpen(false)}
+            <Link href="/workflows" onClick={() => setMenuOpen(false)}
               className="mt-2 px-4 py-3 rounded-xl text-sm font-semibold text-center"
               style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>
               Get started free
@@ -430,7 +430,7 @@ export default function Home() {
             style={{ opacity: mounted ? 1 : 0, animation: mounted ? "slide-up 0.6s ease 0.4s forwards" : "none" }}>
 
             {/* ✅ /workflow — NO S */}
-            <Link href="/workflow"
+            <Link href="/workflows"
               className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 rounded-2xl text-sm font-bold transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
               style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 0 0 1px rgba(99,102,241,0.5), 0 8px 40px rgba(99,102,241,0.35)" }}>
               Get My AI Workflow →
@@ -585,7 +585,7 @@ export default function Home() {
           </Link>
           <div className="flex items-center gap-6 text-xs text-white/25">
             {/* ✅ ALL /workflow — NO S */}
-            <Link href="/workflow" className="hover:text-white/60 transition-colors">Workflows</Link>
+            <Link href="/workflows" className="hover:text-white/60 transition-colors">Workflows</Link>
             <Link href="/pricing"  className="hover:text-white/60 transition-colors">Pricing</Link>
             <Link href="/docs"     className="hover:text-white/60 transition-colors">Docs</Link>
           </div>
