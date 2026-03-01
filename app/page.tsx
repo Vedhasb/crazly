@@ -44,6 +44,7 @@ function Logo({ size = "sm" }: { size?: "sm" | "lg" }) {
   const dim = size === "lg" ? "w-14 h-14 rounded-2xl" : "w-8 h-8 rounded-xl";
 
   if (videoError) {
+    // Fallback: branded gradient box with C — always visible
     return (
       <div className={`${dim} flex items-center justify-center font-bold text-white shrink-0`}
         style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", fontSize: size === "lg" ? "1.5rem" : "0.85rem" }}>
@@ -55,7 +56,10 @@ function Logo({ size = "sm" }: { size?: "sm" | "lg" }) {
   return (
     <video
       src="/videos/logo.mp4"
-      autoPlay loop muted playsInline
+      autoPlay
+      loop
+      muted
+      playsInline
       onError={() => setVideoError(true)}
       className={`${dim} object-cover shrink-0`}
     />
@@ -194,7 +198,9 @@ function HowItWorksHeader() {
     <div ref={ref} className="text-center mb-16">
       <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest mb-4"
         style={{ color: "#818cf8", opacity: inView ? 1 : 0, transform: inView ? "none" : "translateY(12px)", transition: "all 0.5s ease" }}>
-        <span className="w-4 h-px bg-[#818cf8]" />The system<span className="w-4 h-px bg-[#818cf8]" />
+        <span className="w-4 h-px bg-[#818cf8]" />
+        The system
+        <span className="w-4 h-px bg-[#818cf8]" />
       </div>
       <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4"
         style={{ opacity: inView ? 1 : 0, transform: inView ? "none" : "translateY(20px)", transition: "all 0.6s ease 0.1s" }}>
@@ -231,16 +237,20 @@ function FinalCTA() {
         <Logo size="lg" />
       </div>
       <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-5">
-        Stop figuring it out.<br />
+        Stop figuring it out.
+        <br />
         <span className="shimmer-text">Start executing.</span>
       </h2>
       <p className="text-base text-white/40 max-w-md mx-auto mb-10 leading-relaxed">
         Your AI workflow is one click away. Free to start. No credit card. No setup. Just results.
       </p>
-      {/* ✅ /workflow — NO S */}
-      <Link href="/workflow"
+      <Link
+        href="/workflows"
         className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl text-base font-bold transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]"
-        style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 0 0 1px rgba(99,102,241,0.5), 0 12px 48px rgba(99,102,241,0.4)" }}>
+        style={{
+          background: "linear-gradient(135deg, #6366f1, #818cf8)",
+          boxShadow: "0 0 0 1px rgba(99,102,241,0.5), 0 12px 48px rgba(99,102,241,0.4)",
+        }}>
         Get My AI Workflow — Free
         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
           <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
@@ -305,25 +315,28 @@ export default function Home() {
         }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between px-5 sm:px-8 py-3">
 
+          {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
             <Logo size="sm" />
             <span className="font-bold tracking-tight text-white text-base">Crazly</span>
           </Link>
 
+          {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
-            {/* ✅ ALL /workflow — NO S */}
-            <Link href="/workflow" className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Workflows</Link>
+            <Link href="/workflows" className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Workflows</Link>
             <Link href="/pricing"  className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Pricing</Link>
             <Link href="/docs"     className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Docs</Link>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* ✅ /workflow — NO S */}
-            <Link href="/workflow"
+            {/* Single CTA in nav */}
+            <Link href="/workflows"
               className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 active:scale-95"
               style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 4px 20px rgba(99,102,241,0.3)" }}>
               Get started
             </Link>
+
+            {/* Hamburger */}
             <button className="md:hidden p-2 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-all"
               onClick={() => setMenuOpen(!menuOpen)}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -339,9 +352,8 @@ export default function Home() {
         {menuOpen && (
           <div className="md:hidden border-t border-white/[0.06] px-5 py-4 flex flex-col gap-1"
             style={{ background: "rgba(6,6,8,0.97)", backdropFilter: "blur(20px)" }}>
-            {/* ✅ ALL /workflow — NO S */}
             {[
-              { label: "Workflows", href: "/workflow" },
+              { label: "Workflows", href: "/workflows" },
               { label: "Pricing",   href: "/pricing" },
               { label: "Docs",      href: "/docs" },
             ].map(item => (
@@ -350,8 +362,7 @@ export default function Home() {
                 {item.label}
               </Link>
             ))}
-            {/* ✅ /workflow — NO S */}
-            <Link href="/workflow" onClick={() => setMenuOpen(false)}
+            <Link href="/workflows" onClick={() => setMenuOpen(false)}
               className="mt-2 px-4 py-3 rounded-xl text-sm font-semibold text-center"
               style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>
               Get started free
@@ -362,6 +373,8 @@ export default function Home() {
 
       {/* ═══ HERO ════════════════════════════════════════════════ */}
       <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-5 pt-24 pb-20 overflow-hidden">
+
+        {/* BG layers */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0"
             style={{ backgroundImage: "linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
@@ -369,6 +382,7 @@ export default function Home() {
             style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, transparent 30%, #060608 80%)" }} />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] rounded-full"
             style={{ background: "radial-gradient(ellipse, rgba(99,102,241,0.12) 0%, transparent 65%)", filter: "blur(40px)" }} />
+          {/* Spinning rings */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full"
             style={{ border: "1px solid rgba(99,102,241,0.15)", animation: "spin-slow 30s linear infinite" }}>
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-[#6366f1]"
@@ -383,9 +397,18 @@ export default function Home() {
 
         <Particles />
 
+        {/* Content */}
         <div className="relative z-10 max-w-4xl mx-auto">
+
+          {/* Badge */}
           <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full text-xs font-semibold mb-10"
-            style={{ background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.25)", color: "#a5b4fc", opacity: mounted ? 1 : 0, animation: mounted ? "slide-up 0.5s ease forwards" : "none" }}>
+            style={{
+              background: "rgba(99,102,241,0.1)",
+              border: "1px solid rgba(99,102,241,0.25)",
+              color: "#a5b4fc",
+              opacity: mounted ? 1 : 0,
+              animation: mounted ? "slide-up 0.5s ease forwards" : "none",
+            }}>
             <span className="relative flex w-2 h-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-[#6366f1] opacity-75"
                 style={{ animation: "pulse-ring 1.5s ease-out infinite" }} />
@@ -394,21 +417,34 @@ export default function Home() {
             AI Workflow Intelligence Platform
           </div>
 
+          {/* Headline */}
           <h1 className="font-bold leading-[1.05] tracking-tight mb-6"
-            style={{ fontSize: "clamp(34px, 6.5vw, 76px)", opacity: mounted ? 1 : 0, animation: mounted ? "slide-up 0.6s ease 0.1s forwards" : "none" }}>
+            style={{
+              fontSize: "clamp(34px, 6.5vw, 76px)",
+              opacity: mounted ? 1 : 0,
+              animation: mounted ? "slide-up 0.6s ease 0.1s forwards" : "none",
+            }}>
             <span className="text-white">Everyone Around You</span><br />
             <span className="text-white">Is Using AI.</span><br />
             <span className="shimmer-text">You're Still Figuring It Out.</span>
           </h1>
 
+          {/* Sub */}
           <p className="text-base sm:text-lg text-white/45 max-w-2xl mx-auto leading-relaxed mb-8 px-2"
-            style={{ opacity: mounted ? 1 : 0, animation: mounted ? "slide-up 0.6s ease 0.2s forwards" : "none" }}>
+            style={{
+              opacity: mounted ? 1 : 0,
+              animation: mounted ? "slide-up 0.6s ease 0.2s forwards" : "none",
+            }}>
             Crazly gives you the exact tools, prompts, and workflows used by the top 1% of professionals
             in your field — so you can stop experimenting and start executing.
           </p>
 
+          {/* Benefits */}
           <div className="flex flex-col items-center gap-2.5 mb-10"
-            style={{ opacity: mounted ? 1 : 0, animation: mounted ? "slide-up 0.6s ease 0.3s forwards" : "none" }}>
+            style={{
+              opacity: mounted ? 1 : 0,
+              animation: mounted ? "slide-up 0.6s ease 0.3s forwards" : "none",
+            }}>
             {[
               "Know exactly which AI tools to use for your job — no guessing, no wasted hours",
               "Copy-paste workflows built for real professionals, not tech hobbyists",
@@ -426,27 +462,41 @@ export default function Home() {
             ))}
           </div>
 
+          {/* ── CTA BUTTONS ─────────────────────────────────────
+              PRIMARY  → /workflow (hard Link, no nesting issues)
+              SECONDARY → smooth scroll to How It Works section
+          ─────────────────────────────────────────────────────── */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3"
-            style={{ opacity: mounted ? 1 : 0, animation: mounted ? "slide-up 0.6s ease 0.4s forwards" : "none" }}>
+            style={{
+              opacity: mounted ? 1 : 0,
+              animation: mounted ? "slide-up 0.6s ease 0.4s forwards" : "none",
+            }}>
 
-            {/* ✅ /workflow — NO S */}
-            <Link href="/workflow"
+            <Link
+              href="/workflows"
               className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 rounded-2xl text-sm font-bold transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
-              style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 0 0 1px rgba(99,102,241,0.5), 0 8px 40px rgba(99,102,241,0.35)" }}>
+              style={{
+                background: "linear-gradient(135deg, #6366f1, #818cf8)",
+                boxShadow: "0 0 0 1px rgba(99,102,241,0.5), 0 8px 40px rgba(99,102,241,0.35)",
+              }}>
               Get My AI Workflow →
             </Link>
 
-            <button onClick={scrollToHowItWorks}
+            <button
+              onClick={scrollToHowItWorks}
               className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-7 py-4 rounded-2xl text-sm font-medium text-white/55 hover:text-white/90 transition-all duration-200"
               style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" /><polyline points="8 12 12 16 16 12" /><line x1="12" y1="8" x2="12" y2="16" />
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="8 12 12 16 16 12" />
+                <line x1="12" y1="8" x2="12" y2="16" />
               </svg>
               See how it works
             </button>
           </div>
         </div>
 
+        {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-25 pointer-events-none">
           <span className="text-[10px] uppercase tracking-widest text-white">Scroll</span>
           <div className="w-px h-10 overflow-hidden bg-white/10">
@@ -481,12 +531,23 @@ export default function Home() {
         <div className="max-w-3xl mx-auto">
           <div ref={painInView.ref}>
             <div className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest"
-              style={{ color: "#fb7185", opacity: painInView.inView ? 1 : 0, transform: painInView.inView ? "none" : "translateY(16px)", transition: "opacity 0.6s ease, transform 0.6s ease" }}>
-              <span className="w-4 h-px bg-[#fb7185]" />The real problem
+              style={{
+                color: "#fb7185",
+                opacity: painInView.inView ? 1 : 0,
+                transform: painInView.inView ? "none" : "translateY(16px)",
+                transition: "opacity 0.6s ease, transform 0.6s ease",
+              }}>
+              <span className="w-4 h-px bg-[#fb7185]" />
+              The real problem
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4"
-              style={{ opacity: painInView.inView ? 1 : 0, transform: painInView.inView ? "none" : "translateY(20px)", transition: "opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s" }}>
-              You've heard AI can change everything.<br />
+              style={{
+                opacity: painInView.inView ? 1 : 0,
+                transform: painInView.inView ? "none" : "translateY(20px)",
+                transition: "opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s",
+              }}>
+              You've heard AI can change everything.
+              <br />
               <span style={{ color: "rgba(255,255,255,0.3)" }}>So why does it still feel like this?</span>
             </h2>
           </div>
@@ -497,7 +558,9 @@ export default function Home() {
               "You've watched someone else do something impressive with AI and thought \"how did they even know to do that.\"",
               "Every week there's a new tool, a new model, a new \"game-changer\" — and somehow you're more confused than when you started.",
               "The gap between you and the people who actually use AI well is growing, and you can feel it.",
-            ].map((text, i) => <PainItem key={i} text={text} delay={i * 80} />)}
+            ].map((text, i) => (
+              <PainItem key={i} text={text} delay={i * 80} />
+            ))}
           </div>
           <div className="mt-12 p-6 rounded-2xl"
             style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.2)" }}>
@@ -523,11 +586,14 @@ export default function Home() {
         <div className="max-w-5xl mx-auto">
           <HowItWorksHeader />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-16">
-            <StepCard num="01" delay={0} title="Choose Your Profession"
+            <StepCard num="01" delay={0}
+              title="Choose Your Profession"
               body="Tell us what you do. Developer, marketer, student, founder — Crazly instantly matches you with the workflow built specifically for your work, your tools, and your goals. No setup. No configuration. No generic advice." />
-            <StepCard num="02" delay={120} title="Get Your AI Workflow"
+            <StepCard num="02" delay={120}
+              title="Get Your AI Workflow"
               body="You receive a complete, structured playbook. Which AI tools to use, in what order, for what tasks — plus the exact prompts that make them work. Built by people who already figured out the hard part so you don't have to." />
-            <StepCard num="03" delay={240} title="Execute Faster"
+            <StepCard num="03" delay={240}
+              title="Execute Faster"
               body="Open your workflow. Follow the steps. Do in 20 minutes what used to take half a day. Every workflow is designed to produce real output immediately — not teach you theory, not send you down a research rabbit hole. Just results." />
           </div>
           <HowItWorksTagline />
@@ -542,18 +608,29 @@ export default function Home() {
         </div>
         <div ref={proofInView.ref} className="max-w-5xl mx-auto">
           <div className="text-center mb-14"
-            style={{ opacity: proofInView.inView ? 1 : 0, transform: proofInView.inView ? "none" : "translateY(20px)", transition: "all 0.6s ease" }}>
-            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "#818cf8" }}>
-              <span className="w-4 h-px bg-[#818cf8]" />Early traction<span className="w-4 h-px bg-[#818cf8]" />
+            style={{
+              opacity: proofInView.inView ? 1 : 0,
+              transform: proofInView.inView ? "none" : "translateY(20px)",
+              transition: "all 0.6s ease",
+            }}>
+            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest mb-4"
+              style={{ color: "#818cf8" }}>
+              <span className="w-4 h-px bg-[#818cf8]" />
+              Early traction
+              <span className="w-4 h-px bg-[#818cf8]" />
             </div>
             <h2 className="text-3xl sm:text-4xl font-bold mb-3">Built for people who execute.</h2>
-            <p className="text-white/35 text-base max-w-md mx-auto">Used by freelancers, creators and developers adopting AI early.</p>
+            <p className="text-white/35 text-base max-w-md mx-auto">
+              Used by freelancers, creators and developers adopting AI early.
+            </p>
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-14">
             <StatCard label="Workflows available"   to={5}  suffix=""  sub="Across 5 professional roles" delay={0} />
             <StatCard label="AI tools mapped"       to={30} suffix="+" sub="Curated, not scraped"        delay={120} />
             <StatCard label="New workflows monthly" to={4}  suffix="+" sub="Added every week"            delay={240} />
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <ProofCard icon="👥" title="Used by early adopters" delay={0}
               body="Freelancers, creators and developers who want to be ahead of the curve, not left behind by it." />
@@ -577,15 +654,15 @@ export default function Home() {
       </section>
 
       {/* ═══ FOOTER ══════════════════════════════════════════════ */}
-      <footer className="border-t px-5 sm:px-10 py-8" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+      <footer className="border-t px-5 sm:px-10 py-8"
+        style={{ borderColor: "rgba(255,255,255,0.06)" }}>
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2.5">
             <Logo size="sm" />
             <span className="font-bold text-sm text-white/70">Crazly</span>
           </Link>
           <div className="flex items-center gap-6 text-xs text-white/25">
-            {/* ✅ ALL /workflow — NO S */}
-            <Link href="/workflow" className="hover:text-white/60 transition-colors">Workflows</Link>
+            <Link href="/workflows" className="hover:text-white/60 transition-colors">Workflows</Link>
             <Link href="/pricing"  className="hover:text-white/60 transition-colors">Pricing</Link>
             <Link href="/docs"     className="hover:text-white/60 transition-colors">Docs</Link>
           </div>
