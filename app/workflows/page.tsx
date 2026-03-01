@@ -56,7 +56,7 @@ function ToolBadge({ tool }: { tool: string }) {
 }
 
 /* ─── EMAIL MODAL ─────────────────────────────────────────────── */
-function EmailModal({ onClose, source }: { onClose: () => void; source: "workflow" | "upgrade" }) {
+function EmailModal({ onClose, source }: { onClose: () => void; source: "workflows" | "upgrade" }) {
   const [email, setEmail]         = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading]     = useState(false);

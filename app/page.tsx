@@ -245,7 +245,7 @@ function FinalCTA() {
         Your AI workflow is one click away. Free to start. No credit card. No setup. Just results.
       </p>
       <Link
-        href="/workflow"
+        href="/workflows"
         className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl text-base font-bold transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]"
         style={{
           background: "linear-gradient(135deg, #6366f1, #818cf8)",
