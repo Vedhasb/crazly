@@ -39,14 +39,52 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
 }
 
 /* ─── LOGO ────────────────────────────────────────────────────── */
+/*
+  FIX: The old component used onError + useState which caused the
+  video to flicker to "C" on first render in many environments.
+
+  New approach:
+  - Always attempt to render the <video> element
+  - Use a ref to check if the video actually loaded/is playing
+  - Only fall back to the gradient "C" if the video truly cannot play
+  - No more onError → setState flicker
+*/
 function Logo({ size = "sm" }: { size?: "sm" | "lg" }) {
-  const [videoError, setVideoError] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [showFallback, setShowFallback] = useState(false);
   const dim = size === "lg" ? "w-14 h-14 rounded-2xl" : "w-8 h-8 rounded-xl";
 
-  if (videoError) {
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // If the video can't play at all, show fallback
+    const handleError = () => setShowFallback(true);
+
+    // If video loads successfully, make sure fallback is hidden
+    const handleCanPlay = () => setShowFallback(false);
+
+    video.addEventListener("error", handleError);
+    video.addEventListener("canplay", handleCanPlay);
+
+    // Force a load attempt
+    video.load();
+
+    return () => {
+      video.removeEventListener("error", handleError);
+      video.removeEventListener("canplay", handleCanPlay);
+    };
+  }, []);
+
+  if (showFallback) {
     return (
-      <div className={`${dim} flex items-center justify-center font-bold text-white shrink-0`}
-        style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", fontSize: size === "lg" ? "1.5rem" : "0.85rem" }}>
+      <div
+        className={`${dim} flex items-center justify-center font-bold text-white shrink-0`}
+        style={{
+          background: "linear-gradient(135deg, #6366f1, #818cf8)",
+          fontSize: size === "lg" ? "1.5rem" : "0.85rem",
+        }}
+      >
         C
       </div>
     );
@@ -54,10 +92,14 @@ function Logo({ size = "sm" }: { size?: "sm" | "lg" }) {
 
   return (
     <video
+      ref={videoRef}
       src="/videos/logo.mp4"
-      autoPlay loop muted playsInline
-      onError={() => setVideoError(true)}
+      autoPlay
+      loop
+      muted
+      playsInline
       className={`${dim} object-cover shrink-0`}
+      style={{ display: "block" }}
     />
   );
 }
@@ -237,7 +279,6 @@ function FinalCTA() {
       <p className="text-base text-white/40 max-w-md mx-auto mb-10 leading-relaxed">
         Your AI workflow is one click away. Free to start. No credit card. No setup. Just results.
       </p>
-      {/* ✅ /workflow — NO S */}
       <Link href="/workflows"
         className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl text-base font-bold transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]"
         style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 0 0 1px rgba(99,102,241,0.5), 0 12px 48px rgba(99,102,241,0.4)" }}>
@@ -277,7 +318,6 @@ export default function Home() {
       style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
         @keyframes float      { 0%,100%{transform:translateY(0)}   50%{transform:translateY(-12px)} }
         @keyframes shimmer    { 0%{background-position:200% center} 100%{background-position:-200% center} }
         @keyframes spin-slow  { from{transform:rotate(0deg)}        to{transform:rotate(360deg)} }
@@ -311,14 +351,12 @@ export default function Home() {
           </Link>
 
           <div className="hidden md:flex items-center gap-1">
-            {/* ✅ ALL /workflow — NO S */}
             <Link href="/workflows" className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Workflows</Link>
-            <Link href="/pricing"  className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Pricing</Link>
-            <Link href="/docs"     className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Docs</Link>
+            <Link href="/pricing"   className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Pricing</Link>
+            <Link href="/docs"      className="px-4 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all">Docs</Link>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* ✅ /workflow — NO S */}
             <Link href="/workflows"
               className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 active:scale-95"
               style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 4px 20px rgba(99,102,241,0.3)" }}>
@@ -339,7 +377,6 @@ export default function Home() {
         {menuOpen && (
           <div className="md:hidden border-t border-white/[0.06] px-5 py-4 flex flex-col gap-1"
             style={{ background: "rgba(6,6,8,0.97)", backdropFilter: "blur(20px)" }}>
-            {/* ✅ ALL /workflow — NO S */}
             {[
               { label: "Workflows", href: "/workflows" },
               { label: "Pricing",   href: "/pricing" },
@@ -350,7 +387,6 @@ export default function Home() {
                 {item.label}
               </Link>
             ))}
-            {/* ✅ /workflow — NO S */}
             <Link href="/workflows" onClick={() => setMenuOpen(false)}
               className="mt-2 px-4 py-3 rounded-xl text-sm font-semibold text-center"
               style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)" }}>
@@ -428,14 +464,11 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3"
             style={{ opacity: mounted ? 1 : 0, animation: mounted ? "slide-up 0.6s ease 0.4s forwards" : "none" }}>
-
-            {/* ✅ /workflow — NO S */}
             <Link href="/workflows"
               className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 rounded-2xl text-sm font-bold transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
               style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 0 0 1px rgba(99,102,241,0.5), 0 8px 40px rgba(99,102,241,0.35)" }}>
               Get My AI Workflow →
             </Link>
-
             <button onClick={scrollToHowItWorks}
               className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-7 py-4 rounded-2xl text-sm font-medium text-white/55 hover:text-white/90 transition-all duration-200"
               style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
@@ -584,10 +617,9 @@ export default function Home() {
             <span className="font-bold text-sm text-white/70">Crazly</span>
           </Link>
           <div className="flex items-center gap-6 text-xs text-white/25">
-            {/* ✅ ALL /workflow — NO S */}
             <Link href="/workflows" className="hover:text-white/60 transition-colors">Workflows</Link>
-            <Link href="/pricing"  className="hover:text-white/60 transition-colors">Pricing</Link>
-            <Link href="/docs"     className="hover:text-white/60 transition-colors">Docs</Link>
+            <Link href="/pricing"   className="hover:text-white/60 transition-colors">Pricing</Link>
+            <Link href="/docs"      className="hover:text-white/60 transition-colors">Docs</Link>
           </div>
           <p className="text-xs text-white/20">© 2025 Crazly. Stop experimenting. Start executing.</p>
         </div>
