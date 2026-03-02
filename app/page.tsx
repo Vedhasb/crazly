@@ -71,22 +71,18 @@ function Logo({ size = "sm" }: { size?: "sm" | "lg" }) {
         justifyContent: "center",
       }}
     >
-      {/* Fallback letter — always visible underneath */}
-      <span
-        style={{
-          position: "absolute",
-          zIndex: 0,
-          color: "white",
-          fontWeight: "bold",
-          fontSize: size === "lg" ? "1.5rem" : "0.85rem",
-          userSelect: "none",
-          lineHeight: 1,
-        }}
-      >
+      <span style={{
+        position: "absolute",
+        zIndex: 0,
+        color: "white",
+        fontWeight: "bold",
+        fontSize: size === "lg" ? "1.5rem" : "0.85rem",
+        userSelect: "none",
+        lineHeight: 1,
+      }}>
         C
       </span>
 
-      {/* Video on top — covers the C when it loads */}
       <video
         src="/videos/logo.mp4"
         autoPlay
@@ -95,8 +91,7 @@ function Logo({ size = "sm" }: { size?: "sm" | "lg" }) {
         playsInline
         style={{
           position: "absolute",
-          top: 0,
-          left: 0,
+          top: 0, left: 0,
           width: "100%",
           height: "100%",
           objectFit: "cover",
