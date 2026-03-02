@@ -40,67 +40,71 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
 
 /* ─── LOGO ────────────────────────────────────────────────────── */
 /*
-  FIX: The old component used onError + useState which caused the
-  video to flicker to "C" on first render in many environments.
+  THE FIX — why the old approach failed:
+  ----------------------------------------
+  Any useState-based fallback (onError → setShowFallback(true)) fires
+  during React's render/hydration cycle before the browser has had a
+  chance to actually attempt loading the video. On the public (logged-out)
+  page, Clerk adds an extra re-render pass that consistently triggers the
+  error handler before the video src is even fetched.
 
-  New approach:
-  - Always attempt to render the <video> element
-  - Use a ref to check if the video actually loaded/is playing
-  - Only fall back to the gradient "C" if the video truly cannot play
-  - No more onError → setState flicker
+  THE NEW APPROACH — layered CSS, zero state:
+  --------------------------------------------
+  1. A wrapper div has the purple gradient + "C" letter baked in via CSS.
+  2. The <video> sits on top (z-index: 1) with position:absolute + inset:0.
+  3. When the video loads successfully → it covers the "C" completely.
+  4. When the video fails → the gradient + "C" show through naturally.
+  5. No JavaScript. No state. No render cycles. Works on every page,
+     every auth state, first paint included.
 */
 function Logo({ size = "sm" }: { size?: "sm" | "lg" }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [showFallback, setShowFallback] = useState(false);
   const dim = size === "lg" ? "w-14 h-14 rounded-2xl" : "w-8 h-8 rounded-xl";
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    // If the video can't play at all, show fallback
-    const handleError = () => setShowFallback(true);
-
-    // If video loads successfully, make sure fallback is hidden
-    const handleCanPlay = () => setShowFallback(false);
-
-    video.addEventListener("error", handleError);
-    video.addEventListener("canplay", handleCanPlay);
-
-    // Force a load attempt
-    video.load();
-
-    return () => {
-      video.removeEventListener("error", handleError);
-      video.removeEventListener("canplay", handleCanPlay);
-    };
-  }, []);
-
-  if (showFallback) {
-    return (
-      <div
-        className={`${dim} flex items-center justify-center font-bold text-white shrink-0`}
+  return (
+    <div
+      className={`${dim} shrink-0 overflow-hidden`}
+      style={{
+        position: "relative",
+        background: "linear-gradient(135deg, #6366f1, #818cf8)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {/* Fallback letter — always visible underneath */}
+      <span
         style={{
-          background: "linear-gradient(135deg, #6366f1, #818cf8)",
+          position: "absolute",
+          zIndex: 0,
+          color: "white",
+          fontWeight: "bold",
           fontSize: size === "lg" ? "1.5rem" : "0.85rem",
+          userSelect: "none",
+          lineHeight: 1,
         }}
       >
         C
-      </div>
-    );
-  }
+      </span>
 
-  return (
-    <video
-      ref={videoRef}
-      src="/videos/logo.mp4"
-      autoPlay
-      loop
-      muted
-      playsInline
-      className={`${dim} object-cover shrink-0`}
-      style={{ display: "block" }}
-    />
+      {/* Video on top — covers the C when it loads */}
+      <video
+        src="/videos/logo.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          zIndex: 1,
+          display: "block",
+        }}
+      />
+    </div>
   );
 }
 
@@ -133,7 +137,9 @@ function Particles() {
 }
 
 /* ─── STEP CARD ───────────────────────────────────────────────── */
-function StepCard({ num, title, body, delay }: { num: string; title: string; body: string; delay: number }) {
+function StepCard({ num, title, body, delay }: {
+  num: string; title: string; body: string; delay: number
+}) {
   const { ref, inView } = useInView();
   return (
     <div ref={ref}
@@ -152,7 +158,8 @@ function StepCard({ num, title, body, delay }: { num: string; title: string; bod
           style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 4px 16px rgba(99,102,241,0.3)" }}>
           {num}
         </div>
-        <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(99,102,241,0.4), transparent)" }} />
+        <div className="flex-1 h-px"
+          style={{ background: "linear-gradient(90deg, rgba(99,102,241,0.4), transparent)" }} />
       </div>
       <div>
         <h3 className="text-base font-bold text-white mb-2 leading-snug">{title}</h3>
@@ -185,7 +192,9 @@ function PainItem({ text, delay }: { text: string; delay: number }) {
 }
 
 /* ─── STAT CARD ───────────────────────────────────────────────── */
-function StatCard({ label, to, suffix, sub, delay }: { label: string; to: number; suffix: string; sub: string; delay: number }) {
+function StatCard({ label, to, suffix, sub, delay }: {
+  label: string; to: number; suffix: string; sub: string; delay: number
+}) {
   const { ref, inView } = useInView();
   return (
     <div ref={ref} className="flex flex-col items-center text-center p-8 rounded-2xl hover:scale-[1.02] transition-all duration-300"
@@ -197,7 +206,12 @@ function StatCard({ label, to, suffix, sub, delay }: { label: string; to: number
         transition: `opacity 0.6s ease ${delay}ms, transform 0.6s ease ${delay}ms`,
       }}>
       <div className="text-4xl sm:text-5xl font-bold mb-2"
-        style={{ background: "linear-gradient(135deg, #fff, rgba(255,255,255,0.5))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+        style={{
+          background: "linear-gradient(135deg, #fff, rgba(255,255,255,0.5))",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text"
+        }}>
         <Counter to={to} suffix={suffix} />
       </div>
       <p className="text-sm font-semibold text-white/70 mb-1">{label}</p>
@@ -207,7 +221,9 @@ function StatCard({ label, to, suffix, sub, delay }: { label: string; to: number
 }
 
 /* ─── PROOF CARD ──────────────────────────────────────────────── */
-function ProofCard({ icon, title, body, delay }: { icon: string; title: string; body: string; delay: number }) {
+function ProofCard({ icon, title, body, delay }: {
+  icon: string; title: string; body: string; delay: number
+}) {
   const { ref, inView } = useInView();
   return (
     <div ref={ref} className="flex flex-col gap-4 p-6 rounded-2xl transition-all duration-300"
@@ -318,6 +334,7 @@ export default function Home() {
       style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}>
 
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
         @keyframes float      { 0%,100%{transform:translateY(0)}   50%{transform:translateY(-12px)} }
         @keyframes shimmer    { 0%{background-position:200% center} 100%{background-position:-200% center} }
         @keyframes spin-slow  { from{transform:rotate(0deg)}        to{transform:rotate(360deg)} }
@@ -373,7 +390,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Mobile dropdown */}
         {menuOpen && (
           <div className="md:hidden border-t border-white/[0.06] px-5 py-4 flex flex-col gap-1"
             style={{ background: "rgba(6,6,8,0.97)", backdropFilter: "blur(20px)" }}>
@@ -494,10 +510,9 @@ export default function Home() {
         <div className="flex marquee-track whitespace-nowrap gap-12">
           {[0, 1].map(pass => (
             <div key={pass} className="flex items-center gap-12 shrink-0">
-              {["Developer", "Content Creator", "Marketing", "Student", "Startup Founder", "Freelancer", "Designer", "Consultant", "Product Manager", "Copywriter"].map((r, i) => (
+              {["Developer","Content Creator","Marketing","Student","Startup Founder","Freelancer","Designer","Consultant","Product Manager","Copywriter"].map((r, i) => (
                 <div key={i} className="flex items-center gap-3 text-sm font-medium text-white/30">
-                  <span className="w-1 h-1 rounded-full bg-[#6366f1]" />
-                  {r}
+                  <span className="w-1 h-1 rounded-full bg-[#6366f1]" />{r}
                 </div>
               ))}
             </div>
