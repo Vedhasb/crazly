@@ -145,7 +145,10 @@ export default function WorkflowsPage() {
   const [streamingText, setStreamingText] = useState("");
   const [copiedIndex, setCopiedIndex]     = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen]       = useState(false);
-  const [usageCount, setUsageCount]       = useState(0);
+  const [usageCount, setUsageCount] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    return parseInt(localStorage.getItem("crazly_usage") || "0", 10);
+  });
   const [animateIn, setAnimateIn]         = useState(false);
   const [showPaywall, setShowPaywall]     = useState(false);
   const FREE_LIMIT = 3;
@@ -157,7 +160,7 @@ export default function WorkflowsPage() {
 
   const handleRoleSelect = (role: Role) => {
     setSelectedRole(role); setMessages([]); setStreamingText(""); setInput("");
-    setUsageCount(0); setShowPaywall(false); setDrawerOpen(false);
+    setUsageCount(0);localStorage.removeItem("crazly_usage"); setShowPaywall(false); setDrawerOpen(false);
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
@@ -171,7 +174,11 @@ export default function WorkflowsPage() {
     if (usageCount >= FREE_LIMIT) { setShowPaywall(true); return; }
     const userMessage: Message = { role: "user", content: input.trim() };
     const newMessages = [...messages, userMessage];
-    setMessages(newMessages); setInput(""); setIsStreaming(true); setStreamingText(""); setUsageCount(c => c + 1);
+    setMessages(newMessages); setInput(""); setIsStreaming(true); setStreamingText(""); setUsageCount(c => {
+      const next = c + 1;
+      localStorage.setItem("crazly_usage", String(next));
+      return next;
+    });
     try {
       const res = await fetch("/api/generate-workflow", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -189,7 +196,9 @@ export default function WorkflowsPage() {
         }
       }
       setMessages(prev => [...prev, { role: "assistant", content: full }]); setStreamingText("");
-      if (usageCount + 1 >= FREE_LIMIT) setTimeout(() => setShowPaywall(true), 1500);
+      if (usageCount + 1 >= FREE_LIMIT) {
+        setTimeout(() => setShowPaywall(true), 1500);
+      }
     } catch (err) {
       console.error(err);
       setMessages(prev => [...prev, { role: "assistant", content: "Something went wrong — please try again." }]);
