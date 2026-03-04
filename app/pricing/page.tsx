@@ -205,11 +205,39 @@ export default function PricingPage() {
 
             {/* CTA — payment coming soon */}
             <button
-              className="w-full py-3.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
-              style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 4px 24px rgba(99,102,241,0.3)" }}
-              onClick={() => alert("Payment coming soon! We're integrating Razorpay for India & worldwide payments. Stay tuned.")}>
-              Get Pro — {currency}{price}{period.split(",")[0]}
-            </button>
+  onClick={async () => {
+    const res = await fetch("/api/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount: isIndia ? 749 : 9,
+        currency: isIndia ? "INR" : "USD",
+      }),
+    });
+    const { orderId } = await res.json();
+
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      amount: isIndia ? 749 * 100 : 9 * 100,
+      currency: isIndia ? "INR" : "USD",
+      name: "Crazly",
+      description: "Pro Plan — Monthly",
+      order_id: orderId,
+      handler: function (response: any) {
+        alert("Payment successful! Welcome to Pro 🎉");
+        // TODO: update user plan in Supabase to 'pro'
+      },
+      prefill: { name: "", email: "" },
+      theme: { color: "#6366f1" },
+    };
+
+    const rzp = new (window as any).Razorpay(options);
+    rzp.open();
+  }}
+  className="w-full py-3.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
+  style={{ background: "linear-gradient(135deg, #6366f1, #818cf8)", boxShadow: "0 4px 24px rgba(99,102,241,0.3)" }}>
+  Get Pro — {currency}{price}{period.split(",")[0]}
+</button>
             <p className="text-[10px] text-white/25 text-center mt-2.5">
               Payment integration coming soon · Razorpay (India + worldwide)
             </p>
