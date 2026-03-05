@@ -118,6 +118,17 @@ export default function WorkflowsPage() {
 
   // ── On mount: animate in
   useEffect(() => { setAnimateIn(true); }, []);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("upgraded") === "true") {
+      setUserPlan("pro");
+      usageCountRef.current = 0;
+      setUsageDisplay(0);
+      setShowPaywall(false);
+      window.history.replaceState({}, "", "/workflows");
+    }
+  }, []);
 
   // ── When user signs in: sync with Supabase
   useEffect(() => {

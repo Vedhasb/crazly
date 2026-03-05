@@ -223,9 +223,26 @@ export default function PricingPage() {
       name: "Crazly",
       description: "Pro Plan — Monthly",
       order_id: orderId,
-      handler: function (response: any) {
-        alert("Payment successful! Welcome to Pro 🎉");
-        // TODO: update user plan in Supabase to 'pro'
+      handler: async function (response: any) {
+        try {
+          const res = await fetch("/api/upgrade-user", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            window.location.href = "/workflows?upgraded=true";
+          } else {
+            alert("Payment received but upgrade failed. Save this ID: " + response.razorpay_payment_id);
+          }
+        } catch (err) {
+          alert("Payment received! Save this ID: " + response.razorpay_payment_id);
+        }
       },
       prefill: { name: "", email: "" },
       theme: { color: "#6366f1" },
