@@ -443,9 +443,8 @@ export default function Home() {
 
           <h1 className="font-bold leading-[1.05] tracking-tight mb-6"
             style={{ fontSize: "clamp(34px, 6.5vw, 76px)", opacity: mounted ? 1 : 0, animation: mounted ? "slide-up 0.6s ease 0.1s forwards" : "none" }}>
-            <span className="text-white">Everyone Around You</span><br />
-            <span className="text-white">Is Using AI.</span><br />
-            <span className="shimmer-text">You're Still Figuring It Out.</span>
+            <span className="text-white">Stop guessing with AI</span><br />
+            <span className="shimmer-text">Get structured workflows for your job.</span>
           </h1>
 
           <p className="text-base sm:text-lg text-white/45 max-w-2xl mx-auto leading-relaxed mb-8 px-2"
